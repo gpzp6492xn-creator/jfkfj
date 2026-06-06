@@ -2,82 +2,77 @@
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luxury Hotel Portal</title>
+    <title>بوابة النزيل | فندق 5 نجوم</title>
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
-        :root { --gold: #D4AF37; --dark: #050505; --glass: rgba(255,255,255,0.05); }
-        body { background: var(--dark); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 20px; }
+        :root { --gold: #c5a059; --bg: #0b0e14; }
+        body { background: var(--bg); color: white; font-family: 'Cairo', sans-serif; margin: 0; padding: 15px; }
         
-        .hero { text-align: center; padding: 50px 20px; border-bottom: 2px solid var(--gold); }
-        .card { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid var(--gold); 
-                padding: 30px; margin: 20px 0; border-radius: 25px; font-size: 1.5rem; 
-                display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
-        .btn-action { background: var(--gold); border: none; padding: 15px 30px; border-radius: 15px; font-size: 1.5rem; color: #000; font-weight: bold; cursor: pointer; }
-        .qty-box { font-size: 2rem; margin: 0 20px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #333; }
+        .orders-btn { background: var(--gold); padding: 8px 15px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; }
+        
+        .card { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 20px; margin: 10px 0; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .card:hover { border-color: var(--gold); }
         
         .page { display: none; } .active { display: block; }
+        .status-tag { font-size: 0.8rem; color: var(--gold); }
     </style>
 </head>
 <body>
 
-<div class="hero">
-    <h1 id="user-info">أهلاً بك يا فندم</h1>
-</div>
+    <div class="top-bar">
+        <div>أهلاً يا: <span id="u-name">...</span></div>
+        <div class="orders-btn" onclick="show('orders')">📦 طلباتي</div>
+    </div>
 
-<div id="home" class="page active">
-    <div class="card" onclick="show('menu')">🍔 المطعم الفاخر</div>
-    <div class="card" onclick="show('maintenance')">🛠️ الصيانة</div>
-    <div class="card" onclick="show('cleaning')">🧹 التنظيف</div>
-    <div class="card" onclick="window.location.href='https://www.google.com/maps/place/YOUR_HOTEL_URL/review'">⭐ تقييم الخدمة</div>
-</div>
+    <div id="main" class="page active">
+        <div class="card" onclick="show('restaurant')">🍔 المطعم</div>
+        <div class="card" onclick="show('maintenance')">🛠️ الصيانة</div>
+        <div class="card" onclick="show('cleaning')">🧹 التنظيف</div>
+        <div class="card" style="border-color: #4CAF50" onclick="window.location.href='https://maps.google.com'">😊 تقييم إيجابي</div>
+        <div class="card" style="border-color: #f44336" onclick="rateNeg()">😞 تقييم سلبي</div>
+    </div>
 
-<div id="menu" class="page">
-    <div id="items-list"></div>
-    <div class="card" style="background:var(--gold); color:black" onclick="sendOrder()">تأكيد الطلب | إجمالي: <span id="total">0</span> ج.م</div>
-    <button class="btn-action" onclick="show('home')">🔙</button>
-</div>
+    <div id="orders" class="page">
+        <h3>سجل طلباتك</h3>
+        <div id="order-log">لا توجد طلبات حالياً</div>
+        <div class="card" onclick="show('main')">🔙 عودة</div>
+    </div>
 
-<div id="maintenance" class="page">
-    <div class="card" onclick="notify('صيانة تكييف')">❄️ تكييف</div>
-    <div class="card" onclick="notify('كهرباء')">💡 كهرباء</div>
-    <div class="card" onclick="notify('سباكة')">🚰 سباكة</div>
-    <button class="btn-action" onclick="show('home')">🔙</button>
-</div>
+    <div id="maintenance" class="page">
+        <div class="card" onclick="send('الصيانة', 'كهرباء')">💡 كهرباء</div>
+        <div class="card" onclick="send('الصيانة', 'تكييف')">❄️ تكييف</div>
+        <div class="card" onclick="send('الصيانة', 'سباكة')">🚰 سباكة</div>
+        <div class="card" onclick="send('الصيانة', 'غاز')">🔥 غاز</div>
+        <div class="card" onclick="show('main')">🔙 عودة</div>
+    </div>
 
-<div id="cleaning" class="page">
-    <div class="card" onclick="notify('تنظيف الغرفة')">🛏️ تنظيف الغرفة</div>
-    <div class="card" onclick="notify('تغيير مفروشات')">🧼 مفروشات</div>
-    <button class="btn-action" onclick="show('home')">🔙</button>
-</div>
+    <div id="cleaning" class="page">
+        <div class="card" onclick="send('التنظيف', 'غرفة - عادي')">🧹 تنظيف عادي</div>
+        <div class="card" onclick="send('التنظيف', 'غرفة - مستعجل')">🚨 تنظيف مستعجل</div>
+        <div class="card" onclick="show('main')">🔙 عودة</div>
+    </div>
 
-<script>
-    let cart = {};
-    const menu = [{n: "بيتزا مارجريتا", p: 120}, {n: "باستا", p: 150}, {n: "شاورما", p: 90}];
+    <script>
+        let guest = JSON.parse(localStorage.getItem('guest_data'));
+        document.getElementById('u-name').innerText = guest ? guest.n : "النزيل";
 
-    // بناء المنيو
-    let list = document.getElementById('items-list');
-    menu.forEach(item => {
-        list.innerHTML += `<div class="card">${item.n} (${item.p} ج)<br>
-            <button class="btn-action" onclick="change('${item.n}',${item.p},1)">+</button>
-            <span class="qty-box" id="q-${item.n}">0</span>
-            <button class="btn-action" onclick="change('${item.n}',${item.p},-1)">-</button></div>`;
-    });
+        function show(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
 
-    function change(n, p, d) {
-        cart[n] = Math.max(0, (cart[n] || 0) + d);
-        document.getElementById('q-'+n).innerText = cart[n];
-        let tot = 0; menu.forEach(i => tot += (cart[i.n] || 0) * i.p);
-        document.getElementById('total').innerText = tot;
-    }
+        function send(sec, type) {
+            let log = document.getElementById('order-log');
+            if(log.innerText == "لا توجد طلبات حالياً") log.innerHTML = "";
+            log.innerHTML += `<div class="card">${type} <br> <span class="status-tag">حالة الطلب: قيد الانتظار</span></div>`;
+            alert("تم إرسال طلب " + type + " للفريق!");
+            show('main');
+        }
 
-    function sendOrder() {
-        if(document.getElementById('total').innerText == "0") return alert("اختر أصنافاً أولاً!");
-        alert("تم إرسال طلبك للروم سيرفس!"); show('home');
-    }
-
-    function notify(type) { alert("تم إرسال طلب " + type + " للفريق المختص."); show('home'); }
-    function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-</script>
+        function rateNeg() {
+            window.location.href = `https://wa.me/201274847794?text=أنا النزيل ${guest.n}، غرفة ${guest.r}، عندي مشكلة.`;
+        }
+    </script>
 </body>
 </html>

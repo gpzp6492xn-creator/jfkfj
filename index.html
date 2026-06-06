@@ -163,14 +163,13 @@
     </div>
 
     <script>
-        // مفاتيحك الشخصية الصحيحة من بوشر
         const PUSHER_KEY = 'ac85f6d2d545d57adcf'; 
         const PUSHER_CLUSTER = 'eu';             
 
         let pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER, forceTLS: true });
         
-        // تعديل اسم القناة لتبدأ بـ client- لتجنب طلب سيرفر أمان
-        let hotelChannel = pusher.subscribe('client-hotel-channel');
+        // تعديل: قناة عامة بدون تشفير معقد عشان تقبل الاستقبال المباشر
+        let hotelChannel = pusher.subscribe('hotel-channel');
 
         const FOOD_MENU = [
             { id: 1, name: "الوجبة الإقتصادية", price: 120 },
@@ -190,7 +189,7 @@
             renderFoodMenu();
         };
 
-        // الاستماع لتحديثات الأونر
+        // النزيل بيسمع لتحديث الحالة اللي هتبعتها من الـ Debug Console
         hotelChannel.bind('client-status-updated', function(data) {
             let localOrders = JSON.parse(localStorage.getItem('my_orders') || '[]');
             let order = localOrders.find(o => o.id === data.orderId);
@@ -257,23 +256,16 @@
                 details = items.join('، '); prefix = "🍔 طلب مطعم: ";
             }
 
-            const orderId = 'ord-' + Date.now();
+            // توليد آي دي فريد للطلب عشان تتابعه في الـ Debug Console
+            const orderId = 'ord-' + Math.floor(Math.random() * 1000);
             const newOrder = { id: orderId, text: prefix + details, status: 'waiting' };
 
             let localOrders = JSON.parse(localStorage.getItem('my_orders') || '[]');
             localOrders.push(newOrder); localStorage.setItem('my_orders', JSON.stringify(localOrders));
             renderLocalOrders();
 
-            // الإرسال المباشر للأدمن بحدث مخصص يبدأ بـ client-
-            hotelChannel.trigger('client-restaurant-order', {
-                id: orderId, type: type,
-                name: localStorage.getItem('guest_name'),
-                room: localStorage.getItem('guest_room'),
-                phone: localStorage.getItem('guest_phone'),
-                details: details, total: totalPrice
-            });
-
-            alert("🚀 طار الطلب فوراً للمطبخ!");
+            // تنبيه يظهر المعطيات عشان تنسخها وتدخلها لوحة بوشر
+            alert("تم حفظ طلبك محلياً بـ ID: " + orderId + "\nانسخ البيانات وزقها من بوشر للأدمن!");
             if(type === 'restaurant') cart = {};
             goHome(); toggleDrawer(true);
         }
@@ -283,7 +275,7 @@
             waitingBox.innerHTML = ''; progressBox.innerHTML = ''; doneBox.innerHTML = '';
             let localOrders = JSON.parse(localStorage.getItem('my_orders') || '[]');
             localOrders.forEach(order => {
-                const html = `<div class="drawer-order-item"><strong>${order.text}</strong></div>`;
+                const html = `<div class="drawer-order-item"><strong>${order.text} [${order.id}]</strong></div>`;
                 if(order.status === 'waiting') waitingBox.innerHTML += html;
                 else if(order.status === 'progress') progressBox.innerHTML += html;
                 else if(order.status === 'done') doneBox.innerHTML += html;

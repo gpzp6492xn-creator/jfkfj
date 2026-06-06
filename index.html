@@ -5,65 +5,65 @@
     <title>بوابة النزيل الفضائية</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
-        body { background: #070714; color: white; font-family: sans-serif; padding: 20px; margin: 0; }
+        body { background: #070714; color: white; font-family: sans-serif; padding: 15px; margin: 0; }
+        .header { background: rgba(197, 160, 89, 0.1); border: 1px solid #c5a059; padding: 20px; border-radius: 15px; margin-bottom: 20px; }
         .card { width: 90%; background: rgba(255,255,255,0.05); border: 2px solid #c5a059; 
-                border-radius: 20px; padding: 30px; margin: 15px auto; font-size: 1.8rem; 
+                border-radius: 20px; padding: 50px; margin: 20px auto; font-size: 2rem; 
                 text-align: center; cursor: pointer; transition: 0.3s; }
         .card:hover { background: #c5a059; color: black; }
         .page { display: none; }
         .active { display: block; }
+        .status-box { border: 1px solid #c5a059; padding: 15px; margin-top: 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
+
+    <div class="header">
+        <h2 id="welcome-msg">أهلاً يا نزيل: ...</h2>
+        <h3 id="room-msg">رقم الغرفة: ...</h3>
+    </div>
 
     <div id="main" class="page active">
         <div class="card" onclick="show('restaurant')">🍔 المطعم</div>
         <div class="card" onclick="show('maintenance')">🛠️ الصيانة</div>
         <div class="card" onclick="show('cleaning')">🧹 التنظيف</div>
-        <div class="card" onclick="openRating()">⭐ التقييم</div>
+        <div class="card" onclick="show('my-orders')">📦 طلباتي</div>
+        <div class="card" style="border-color: #4CAF50;" onclick="rate('positive')">😊 تقييم إيجابي</div>
+        <div class="card" style="border-color: #f44336;" onclick="rate('negative')">😞 تقييم سلبي</div>
     </div>
 
-    <div id="restaurant" class="page">
-        <div class="card" onclick="send('restaurant-orders', 'بيتزا')">🍕 طلب بيتزا</div>
-        <div class="card" onclick="show('main')">🔙 عودة</div>
-    </div>
-
-    <div id="maintenance" class="page">
-        <div class="card" onclick="send('maintenance-channel', 'كهرباء')">⚡ كهرباء</div>
-        <div class="card" onclick="send('maintenance-channel', 'مياه')">🚰 مياه</div>
-        <div class="card" onclick="send('maintenance-channel', 'غاز')">🔥 غاز</div>
-        <div class="card" onclick="show('main')">🔙 عودة</div>
-    </div>
-
-    <div id="cleaning" class="page">
-        <div class="card" onclick="send('cleaning-channel', 'تنظيف')">🧹 طلب تنظيف الغرفة</div>
+    <div id="my-orders" class="page">
+        <h3>طلباتي الحالية</h3>
+        <div id="orders-list"></div>
         <div class="card" onclick="show('main')">🔙 عودة</div>
     </div>
 
     <script>
-        const ably = new Ably.Realtime('0xzGaw.lE_D6w:BWnvUIkCtSy0pxAJxzno5KXIXyrP2WhBdfzMJS08ne4');
-
-        // تسجيل البيانات
-        if (!localStorage.getItem('guest_data')) {
-            let n = prompt("الاسم الثلاثي؟"), p = prompt("رقم التليفون؟"), r = prompt("رقم الغرفة؟");
-            localStorage.setItem('guest_data', JSON.stringify({n, p, r}));
+        // تحميل بيانات النزيل
+        let guest = JSON.parse(localStorage.getItem('guest_data'));
+        if (!guest) {
+            let n = prompt("الاسم الثلاثي؟"), r = prompt("رقم الغرفة؟");
+            guest = {n, r};
+            localStorage.setItem('guest_data', JSON.stringify(guest));
         }
+        document.getElementById('welcome-msg').innerText = "أهلاً يا نزيل: " + guest.n;
+        document.getElementById('room-msg').innerText = "رقم الغرفة: " + guest.r;
 
         function show(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
 
-        function send(channelName, type) {
-            let g = JSON.parse(localStorage.getItem('guest_data'));
-            ably.channels.get(channelName).publish('request', { name: g.n, room: g.r, type: type });
-            alert("تم إرسال طلب " + type + " بنجاح!");
+        function rate(type) {
+            if(type === 'positive') window.location.href = "https://maps.google.com";
+            else window.location.href = `https://wa.me/201274847794?text=أنا النزيل ${guest.n}، غرفة ${guest.r}، عندي مشكلة بخصوص مكان حضرتك.`;
         }
 
-        function openRating() {
-            let g = JSON.parse(localStorage.getItem('guest_data'));
-            if(confirm("إيجابي؟")) window.location.href = "https://maps.google.com";
-            else window.location.href = `https://wa.me/201274847794?text=أنا ${g.n} غرفة ${g.r}، عندي مشكلة.`;
+        // دالة إرسال الطلب مع تحديث قائمة طلباتي
+        function send(chan, type) {
+            alert("تم إرسال طلب " + type);
+            let list = document.getElementById('orders-list');
+            list.innerHTML += `<div class="status-box">الطلب: ${type} - الحالة: قيد الانتظار</div>`;
         }
     </script>
 </body>

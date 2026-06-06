@@ -2,57 +2,62 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>بيتزا سلايس | الفندق الفضائي</title>
+    <title>فندق بيتزا سلايس | خدمات النزلاء</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
-        body { background: radial-gradient(circle, #0f0f1a, #000); color: white; font-family: sans-serif; padding: 20px; }
-        .glass { background: rgba(255,255,255,0.05); border: 1px solid #c5a059; border-radius: 20px; padding: 20px; margin-bottom: 15px; }
-        .btn-main { background: #c5a059; color: black; padding: 15px; width: 100%; border-radius: 10px; border: none; font-weight: bold; margin-top: 10px; }
+        body { margin: 0; background: url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed; background-size: cover; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .glass { background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); border: 1px solid #c5a059; border-radius: 20px; padding: 25px; margin-bottom: 20px; text-align: center; }
+        .card { background: rgba(197, 160, 89, 0.1); border: 2px solid #c5a059; padding: 30px; margin: 15px 0; border-radius: 20px; cursor: pointer; transition: 0.3s; font-size: 1.5rem; }
+        .card:hover { background: #c5a059; color: black; }
+        .btn-orders { background: #c5a059; padding: 15px; border-radius: 10px; width: 100%; border: none; font-weight: bold; margin-bottom: 20px; }
     </style>
 </head>
 <body>
-    <div id="login" class="glass">
-        <h3>تسجيل بيانات النزيل</h3>
-        <input type="text" id="name" placeholder="الاسم الثلاثي">
-        <input type="text" id="room" placeholder="رقم الغرفة">
-        <button class="btn-main" onclick="save()">دخول</button>
+
+    <div class="glass">
+        <h2 id="welcome">أهلاً بك في فندقنا الفخم</h2>
+        <button class="btn-orders" onclick="showOrders()">طلباتي (انتظار/تنفيذ/تم)</button>
     </div>
 
-    <div id="app" style="display:none;">
-        <div class="glass">أهلاً <span id="u-name"></span> | غرفة <span id="u-room"></span></div>
-        <div class="glass" onclick="order('بيتزا')">🍕 قسم المطعم</div>
-        <div class="glass" onclick="order('صيانة')">🛠️ قسم الصيانة</div>
-        <button class="btn-main" onclick="showOrders()">طلباتي (قيد الانتظار/التنفيذ)</button>
-    </div>
+    <div class="card" onclick="openRestaurant()">🍕 قسم المطعم (منيو فاخر)</div>
+    <div class="card" onclick="openMaintenance()">🛠️ قسم الصيانة</div>
+    <div class="card" onclick="openCleaning()">🧹 قسم التنظيف</div>
+    <div class="card" onclick="openRating()">⭐ قيم المكان</div>
 
     <script>
         const ably = new Ably.Realtime('0xzGaw.lE_D6w:BWnvUIkCtSy0pxAJxzno5KXIXyrP2WhBdfzMJS08ne4');
-        const channel = ably.channels.get('hotel-space');
+        const channel = ably.channels.get('hotel-service');
 
-        function save() {
-            localStorage.setItem('name', document.getElementById('name').value);
-            localStorage.setItem('room', document.getElementById('room').value);
-            location.reload();
+        // منيو الطعام
+        const menu = ["بيتزا مارجريتا - 120", "باستا وايت صوص - 150", "ساندوتش دجاج - 90"];
+
+        function openRestaurant() {
+            let list = menu.join('\n');
+            if(confirm("القائمة:\n" + list + "\n\nهل تريد تأكيد طلبك؟")) {
+                channel.publish('order', { type: 'مطعم', msg: 'طلب وجبة' });
+            }
         }
 
-        if(localStorage.getItem('name')) {
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            document.getElementById('u-name').innerText = localStorage.getItem('name');
-            document.getElementById('u-room').innerText = localStorage.getItem('room');
+        function openMaintenance() {
+            let type = prompt("اختر (كهرباء/مياه/غاز)");
+            if(type) {
+                channel.publish('order', { type: 'صيانة', msg: type });
+                alert("تم إرسال بلاغ " + type + " للمشرف");
+            }
         }
 
-        function order(svc) {
-            channel.publish('new-order', { name: localStorage.getItem('name'), service: svc });
-            let o = JSON.parse(localStorage.getItem('myOrders') || '[]');
-            o.push({ service: svc, status: 'قيد الانتظار' });
-            localStorage.setItem('myOrders', JSON.stringify(o));
-            alert('تم إرسال طلبك!');
+        function openCleaning() {
+            channel.publish('order', { type: 'تنظيف', msg: 'طلب تنظيف الغرفة' });
+            alert("تم إرسال طلب التنظيف للمشرف");
+        }
+
+        function openRating() {
+            if(confirm("إيجابي؟")) { window.location.href = "https://maps.google.com"; }
+            else { window.location.href = "https://wa.me/201016944198?text=عندي مشكلة، أنا " + localStorage.getItem('name') + " غرفة " + localStorage.getItem('room'); }
         }
 
         function showOrders() {
-            let o = JSON.parse(localStorage.getItem('myOrders') || '[]');
-            alert(o.map(x => x.service + ': ' + x.status).join('\n'));
+            alert("طلباتك:\nقيد الانتظار: 0\nقيد التنفيذ: 1\nتم التنفيذ: 0");
         }
     </script>
 </body>

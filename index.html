@@ -2,27 +2,26 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>بوابة النزيل</title>
+    <title>بوابة خدمات النزلاء</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <style>
+        body { background: #000; color: #fff; font-family: sans-serif; padding: 20px; }
+        .box { background: #1a1a1a; padding: 20px; margin: 10px 0; border: 1px solid #c5a059; border-radius: 10px; cursor: pointer; text-align: center; }
+    </style>
 </head>
 <body>
-    <h1>بوابة الخدمات</h1>
-    <button onclick="sendOrder('بيتزا')">طلب بيتزا</button>
-    <button onclick="sendOrder('صيانة')">طلب صيانة</button>
+    <div class="box" onclick="sendOrder('المطعم')">قسم المطعم</div>
+    <div class="box" onclick="sendOrder('الصيانة')">قسم الصيانة</div>
+    <div class="box" onclick="sendOrder('التنظيف')">قسم التنظيف</div>
 
     <script>
-        // مفتاح الربط الخاص بك
+        // الربط المباشر
         const ably = new Ably.Realtime('0xzGaw.lE_D6w:BWnvUIkCtSy0pxAJxzno5KXIXyrP2WhBdfzMJS08ne4');
-        const channel = ably.channels.get('hotel-channel');
+        const channel = ably.channels.get('hotel-orders');
 
-        function sendOrder(service) {
-            channel.publish('new-order', {
-                name: "كريم",
-                room: "100",
-                service: service,
-                time: new Date().toLocaleTimeString()
-            });
-            alert("تم إرسال طلبك للمشرف!");
+        function sendOrder(type) {
+            channel.publish('new-order', { service: type, time: new Date().toLocaleTimeString() });
+            alert("تم إرسال طلبك: " + type);
         }
     </script>
 </body>

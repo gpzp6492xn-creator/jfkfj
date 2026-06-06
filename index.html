@@ -3,167 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مطعم الطيب - تجربة فضائية</title>
+    <title>بوابة الخدمات الذكية - الفندق الفاخر</title>
+    <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            overflow: hidden;
-            background-color: #050505;
+        :root {
+            --bg-space: #070714;
+            --card-space: rgba(15, 15, 35, 0.75);
+            --neon-blue: #00f0ff;
+            --neon-purple: #bd00ff;
+            --neon-pink: #ff007a;
+            --text-main: #e2e8f0;
+        }
+        body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at center, #120e2e 0%, var(--bg-space) 100%);
+            color: var(--text-main);
+            margin: 0; padding: 15px; min-height: 100vh;
         }
-
-        /* خلفية الفضاء المتحركة */
-        .space-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
-            z-index: -1;
-        }
-
-        /* إضافة تأثير النجوم المتلألئة */
-        .stars {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: white;
-            box-shadow: 0 0 10px white;
-            border-radius: 50%;
-            opacity: 0.5;
-            animation: twinkle 2s infinite ease-in-out;
-        }
-
-        @keyframes twinkle {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
-
-        .container {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            perspective: 1000px;
-        }
-
-        .logo-container {
-            position: relative;
-            margin-bottom: 40px;
-            animation: float 4s infinite ease-in-out;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(2deg); }
-        }
-
-        .logo {
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            border: 4px solid #f1c40f;
-            box-shadow: 0 0 30px rgba(241, 196, 15, 0.6), inset 0 0 20px rgba(241, 196, 15, 0.4);
-            object-fit: cover;
-        }
-
+        .container { max-width: 500px; margin: 30px auto; }
         .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            padding: 40px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 85%;
-            max-width: 400px;
-            text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            background: var(--card-space); backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 28px; padding: 30px;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.1);
         }
-
-        h1 {
-            color: #fff;
-            text-shadow: 0 0 10px #f1c40f;
-            margin: 0 0 10px 0;
-            font-size: 26px;
+        h2 {
+            text-align: center; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800;
         }
-
-        p { color: #8892b0; margin-bottom: 30px; }
-
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 18px;
-            margin: 20px 0;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: bold;
-            text-decoration: none;
-            text-transform: uppercase;
-            transition: 0.3s;
-            position: relative;
-            overflow: hidden;
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 13px; color: var(--neon-blue); margin-bottom: 8px; font-weight: bold; }
+        input, select {
+            width: 100%; padding: 14px 18px; background: rgba(5, 5, 15, 0.8);
+            border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 14px; color: white; box-sizing: border-box;
         }
-
-        .btn-positive {
-            background: linear-gradient(45deg, #00b09b, #96c93d);
-            color: white;
-            box-shadow: 0 0 20px rgba(0, 176, 155, 0.5);
+        .btn-neon {
+            width: 100%; background: linear-gradient(135deg, #00b4d8, var(--neon-purple)); color: white;
+            border: none; padding: 16px; border-radius: 16px; font-weight: bold; cursor: pointer;
+            display: flex; justify-content: center; align-items: center; gap: 12px; transition: 0.3s;
         }
-
-        .btn-negative {
-            background: transparent;
-            border: 2px solid #e74c3c;
-            color: #e74c3c;
+        .btn-neon:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0, 240, 255, 0.5); }
+        .section-btn { background: rgba(255, 255, 255, 0.02); margin-bottom: 16px; justify-content: space-between; }
+        .hidden { display: none !important; }
+        .item-card {
+            background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px; padding: 18px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;
         }
-
-        .btn:hover {
-            transform: scale(1.05) translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        .counter-box { display: flex; align-items: center; gap: 15px; background: rgba(0, 0, 0, 0.5); padding: 6px 12px; border-radius: 10px; }
+        .btn-count { background: none; border: none; color: var(--neon-blue); font-size: 22px; cursor: pointer; }
+        .cart-bar {
+            background: linear-gradient(135deg, #03001e, #7303c0); border-top: 2px solid var(--neon-blue);
+            position: fixed; bottom: 0; left: 0; width: 100%; padding: 18px 24px; box-sizing: border-box;
+            display: flex; justify-content: space-between; align-items: center; border-radius: 24px 24px 0 0;
         }
-
-        .cosmic-footer {
-            margin-top: 20px;
-            color: #444;
-            font-size: 10px;
-            letter-spacing: 2px;
-        }
+        .rating-box { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="space-bg"></div>
+    <div class="container">
+        <div id="setup-step" class="glass-panel">
+            <h2><i class="fa-solid fa-bolt"></i> بوابة النزلاء الذكية</h2>
+            <div class="input-group">
+                <label><i class="fa-solid fa-user"></i> الاسم رباعي:</label>
+                <input type="text" id="guest-name" placeholder="محمد أحمد محمود">
+            </div>
+            <div class="input-group">
+                <label><i class="fa-solid fa-door-open"></i> رقم الغرفة:</label>
+                <input type="number" id="guest-room" placeholder="204">
+            </div>
+            <div class="input-group">
+                <label><i class="fa-solid fa-phone"></i> رقم الهاتف:</label>
+                <input type="tel" id="guest-phone" placeholder="01012345678">
+            </div>
+            <button class="btn-neon" onclick="saveProfile()">اتصال بالمركبة الفندقية 🚀</button>
+        </div>
 
-<div class="container">
-    <div class="logo-container">
-        <img src="https://via.placeholder.com/150?text=الطيب" alt="الطيب" class="logo">
+        <div id="app-step" class="glass-panel hidden">
+            <h2 id="welcome-msg">بوابة النزيل الفاخر</h2>
+            <div id="menu-home">
+                <button class="btn-neon section-btn" onclick="openSection('restaurant-view')"><span>🍔 اطلب من المطعم</span> <i class="fa-solid fa-chevron-left"></i></button>
+                <button class="btn-neon section-btn" onclick="openSection('maintenance-view')"><span>🔧 طلب صيانة للغرفة</span> <i class="fa-solid fa-chevron-left"></i></button>
+                <button class="btn-neon section-btn" onclick="openSection('cleaning-view')"><span>🧹 خدمة تنظيف الغرف</span> <i class="fa-solid fa-chevron-left"></i></button>
+                <button class="btn-neon section-btn" onclick="toggleRatingMenu()"><span>⭐ قيم المكان</span> <i class="fa-solid fa-star"></i></button>
+                <div id="rating-submenu" class="rating-box hidden">
+                    <button class="btn-neon" style="background:#00b4d8;" onclick="window.open('https://search.google.com/local/writereview?placeid=ChIJawk683AvVhQRWPXoXaiXeCw', '_blank')">تقييم إيجابي</button>
+                    <button class="btn-neon" style="background:var(--neon-pink);" onclick="sendComplaint()">تقييم سلبي</button>
+                </div>
+            </div>
+
+            <div id="restaurant-view" class="hidden">
+                <div id="food-list"></div>
+                <button class="btn-neon" style="background:#334155; margin-top:20px;" onclick="goHome()">🔙 عودة</button>
+            </div>
+
+            <div id="maintenance-view" class="hidden">
+                <label>نوع العطل الفني:</label>
+                <select id="maint-type">
+                    <option value="كهرباء">⚡ أعطال الكهرباء والتكييف</option>
+                    <option value="سباكة">🚰 أعطال السباكة والمياه</option>
+                </select>
+                <button class="btn-neon" style="margin-top:25px;" onclick="sendMaintenance()">إرسال طلب صيانة 🛠️</button>
+                <button class="btn-neon" style="background:#334155; margin-top:10px;" onclick="goHome()">إلغاء</button>
+            </div>
+
+            <div id="cleaning-view" class="hidden">
+                <p>سيتحرك طاقم التنظيف لتعقيم وترتيب غرفتك فوراً.</p>
+                <button class="btn-neon" style="background:#10b981;" onclick="sendCleaning()">🚀 تأكيد طلب النظافة</button>
+                <button class="btn-neon" style="background:#334155; margin-top:10px;" onclick="goHome()">إلغاء</button>
+            </div>
+        </div>
     </div>
 
-    <div class="glass-panel">
-        <h1>مطعم الطيب</h1>
-        <p>رحلة مذاق من كوكب آخر</p>
-        
-        <a href="https://search.google.com/local/writereview?placeid=ChIJq-FYuPQ5WBQRaAhFrbMTaLI" target="_blank" class="btn btn-positive">⭐ تقييم 5 نجوم (خرافي)</a>
-
-        <a href="https://wa.me/201016944198?text=عندي%20تعليق%20سلبي%20لمكان%20حضرتك%20:%20" target="_blank" class="btn btn-negative">🚀 إرسال ملاحظات للإدارة</a>
-        
-        <div class="cosmic-footer">SYSTEM v3.0 | DEEP SPACE DIVS</div>
+    <div id="cart-floating-bar" class="cart-bar hidden">
+        <div><span id="cart-total-price" style="font-size:22px; font-weight:bold; color:#ffca28;">0 EGP</span></div>
+        <button onclick="checkoutOrder()" class="btn-neon" style="width:auto;">تأكيد الطلب للمطبخ 👨‍🍳</button>
     </div>
-</div>
 
-<script>
-    // توليد نجوم عشوائية في الخلفية
-    const space = document.querySelector('.space-bg');
-    for (let i = 0; i < 100; i++) {
-        const star = document.createElement('div');
-        star.className = 'stars';
-        star.style.left = Math.random() * 100 + '%';
-        star.style.top = Math.random() * 100 + '%';
-        star.style.animationDelay = Math.random() * 2 + 's';
-        space.appendChild(star);
-    }
-</script>
+    <script>
+        // ضع بيانات تطبيقك هنا
+        const PUSHER_KEY = 'YOUR_PUSHER_KEY';
+        const PUSHER_CLUSTER = 'YOUR_CLUSTER';
+        
+        let pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
+        // استخدام قناة عامة لتجنب مشاكل الـ Auth والسيرفرات
+        let hotelChannel = pusher.subscribe('hotel-channel');
 
+        const FOOD_MENU = [
+            { id: 1, name: "الوجبة الإقتصادية", price: 120 },
+            { id: 2, name: "وجبة إلدو خور", price: 140 },
+            { id: 3, name: "وجبة الجوكر", price: 145 },
+            { id: 4, name: "فرخة مشوية كاملة", price: 310 }
+        ];
+        let cart = {};
+
+        window.onload = function() {
+            if(localStorage.getItem('guest_name')) {
+                document.getElementById('setup-step').classList.add('hidden');
+                document.getElementById('app-step').classList.remove('hidden');
+                renderWelcome();
+            }
+            renderFoodMenu();
+        };
+
+        function saveProfile() {
+            localStorage.setItem('guest_name', document.getElementById('guest-name').value);
+            localStorage.setItem('guest_room', document.getElementById('guest-room').value);
+            localStorage.setItem('guest_phone', document.getElementById('guest-phone').value);
+            location.reload();
+        }
+
+        function renderWelcome() { document.getElementById('welcome-msg').innerText = "غرفة " + localStorage.getItem('guest_room') + " | " + localStorage.getItem('guest_name'); }
+        
+        function renderFoodMenu() {
+            const container = document.getElementById('food-list');
+            FOOD_MENU.forEach(item => {
+                container.innerHTML += `
+                    <div class="item-card">
+                        <div><strong>${item.name}</strong><br><span>${item.price} EGP</span></div>
+                        <div class="counter-box">
+                            <button class="btn-count" onclick="updateCart('${item.name}', -1)">-</button>
+                            <span class="item-qty" id="qty-${item.id}">0</span>
+                            <button class="btn-count" onclick="updateCart('${item.name}', 1)">+</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function updateCart(name, change) {
+            if(!cart[name]) cart[name] = 0;
+            cart[name] += change;
+            if(cart[name] <= 0) delete cart[name];
+            const prod = FOOD_MENU.find(f => f.name === name);
+            const el = document.getElementById("qty-" + prod.id);
+            if(el) el.innerText = cart[name] || 0;
+            updateCartBar();
+        }
+
+        function updateCartBar() {
+            let total = 0, has = false;
+            for (const [n, q] of Object.entries(cart)) { total += FOOD_MENU.find(f=>f.name===n).price * q; has = true; }
+            if(has && !document.getElementById('restaurant-view').classList.contains('hidden')) {
+                document.getElementById('cart-floating-bar').classList.remove('hidden');
+                document.getElementById('cart-total-price').innerText = total + " EGP";
+            } else { document.getElementById('cart-floating-bar').classList.add('hidden'); }
+        }
+
+        function openSection(id) { document.getElementById('menu-home').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); updateCartBar(); }
+        function goHome() { document.getElementById('restaurant-view').classList.add('hidden'); document.getElementById('maintenance-view').classList.add('hidden'); document.getElementById('cleaning-view').classList.add('hidden'); document.getElementById('cart-floating-bar').classList.add('hidden'); document.getElementById('menu-home').classList.remove('hidden'); }
+        function toggleRatingMenu() { document.getElementById('rating-submenu').classList.toggle('hidden'); }
+
+        function checkoutOrder() {
+            let details = []; for (const [n, q] of Object.entries(cart)) details.push(`${n} (${q})`);
+            hotelChannel.trigger('client-restaurant-order', {
+                name: localStorage.getItem('guest_name'), room: localStorage.getItem('guest_room'),
+                phone: localStorage.getItem('guest_phone'), details: details.join('، ')
+            });
+            alert("🚀 تم إرسال طلبك للمطبخ بنجاح!"); cart = {}; goHome();
+        }
+
+        function sendMaintenance() {
+            hotelChannel.trigger('client-maintenance-order', {
+                name: localStorage.getItem('guest_name'), room: localStorage.getItem('guest_room'),
+                phone: localStorage.getItem('guest_phone'), details: document.getElementById('maint-type').value
+            });
+            alert("🔧 تم إرسال بلاغ الصيانة."); goHome();
+        }
+
+        function sendCleaning() {
+            hotelChannel.trigger('client-cleaning-order', {
+                name: localStorage.getItem('guest_name'), room: localStorage.getItem('guest_room'),
+                phone: localStorage.getItem('guest_phone'), details: "طلب تنظيف وتعقيم الغرفة بالكامل"
+            });
+            alert("🧹 تم طلب خدمة النظافة."); goHome();
+        }
+
+        function sendComplaint() {
+            window.location.href = "https://wa.me/+2001016944198?text=" + encodeURIComponent("شكوى من غرفة " + localStorage.getItem('guest_room'));
+        }
+    </script>
 </body>
 </html>

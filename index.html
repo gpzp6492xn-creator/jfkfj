@@ -2,85 +2,82 @@
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>فندق الفخامة | بوابتك للرفاهية</title>
-    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxury Hotel Portal</title>
     <style>
-        :root { --gold: #c5a059; --dark: #070714; }
-        body { background: var(--dark); color: white; font-family: 'Cairo', sans-serif; margin: 0; padding: 20px; overflow-x: hidden; }
+        @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+        :root { --gold: #D4AF37; --dark: #050505; --glass: rgba(255,255,255,0.05); }
+        body { background: var(--dark); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 20px; }
         
-        /* تأثيرات النيون والزجاج */
-        .glass-header { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid var(--gold); padding: 30px; border-radius: 30px; text-align: center; margin-bottom: 40px; box-shadow: 0 0 20px rgba(197, 160, 89, 0.2); }
-        .card { background: linear-gradient(145deg, #1a1a2e, #070714); border: 1px solid var(--gold); padding: 40px; margin: 25px auto; border-radius: 40px; font-size: 1.8rem; text-align: center; cursor: pointer; transition: 0.5s; position: relative; overflow: hidden; }
-        .card:hover { transform: scale(1.05); box-shadow: 0 0 30px var(--gold); }
+        .hero { text-align: center; padding: 50px 20px; border-bottom: 2px solid var(--gold); }
+        .card { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid var(--gold); 
+                padding: 30px; margin: 20px 0; border-radius: 25px; font-size: 1.5rem; 
+                display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .btn-action { background: var(--gold); border: none; padding: 15px 30px; border-radius: 15px; font-size: 1.5rem; color: #000; font-weight: bold; cursor: pointer; }
+        .qty-box { font-size: 2rem; margin: 0 20px; }
         
-        /* قسم الطلبات */
-        .order-panel { border-left: 5px solid var(--gold); padding: 20px; background: rgba(197, 160, 89, 0.05); margin: 10px 0; border-radius: 10px; }
-        
-        .page { display: none; } .active { display: block; animation: fadeIn 0.8s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .page { display: none; } .active { display: block; }
     </style>
 </head>
 <body>
 
-    <div class="glass-header">
-        <h1 id="welcome">أهلاً بك يا بطل</h1>
-        <h2 id="room">الغرفة رقم: -</h2>
-    </div>
+<div class="hero">
+    <h1 id="user-info">أهلاً بك يا فندم</h1>
+</div>
 
-    <div id="main" class="page active">
-        <div class="card" onclick="show('my-orders')">📦 طلباتي (قيد التنفيذ)</div>
-        <div class="card" onclick="show('restaurant')">🍔 المطعم</div>
-        <div class="card" onclick="show('maintenance')">🛠️ الصيانة</div>
-        <div class="card" onclick="show('cleaning')">🧹 التنظيف</div>
-        <div class="card" onclick="window.location.href='https://maps.google.com'">⭐ تقييم إيجابي</div>
-        <div class="card" onclick="rateNeg()">⚠️ تقييم سلبي</div>
-    </div>
+<div id="home" class="page active">
+    <div class="card" onclick="show('menu')">🍔 المطعم الفاخر</div>
+    <div class="card" onclick="show('maintenance')">🛠️ الصيانة</div>
+    <div class="card" onclick="show('cleaning')">🧹 التنظيف</div>
+    <div class="card" onclick="window.location.href='https://www.google.com/maps/place/YOUR_HOTEL_URL/review'">⭐ تقييم الخدمة</div>
+</div>
 
-    <div id="restaurant" class="page">
-        <div id="menu-container"></div>
-        <div class="card" style="background: var(--gold); color: black;" onclick="confirmOrder()">تأكيد الطلب | الإجمالي: <span id="total">0</span></div>
-        <div class="card" onclick="show('main')">🔙 عودة</div>
-    </div>
+<div id="menu" class="page">
+    <div id="items-list"></div>
+    <div class="card" style="background:var(--gold); color:black" onclick="sendOrder()">تأكيد الطلب | إجمالي: <span id="total">0</span> ج.م</div>
+    <button class="btn-action" onclick="show('home')">🔙</button>
+</div>
 
-    <div id="my-orders" class="page">
-        <div id="order-list"></div>
-        <div class="card" onclick="show('main')">🔙 عودة</div>
-    </div>
+<div id="maintenance" class="page">
+    <div class="card" onclick="notify('صيانة تكييف')">❄️ تكييف</div>
+    <div class="card" onclick="notify('كهرباء')">💡 كهرباء</div>
+    <div class="card" onclick="notify('سباكة')">🚰 سباكة</div>
+    <button class="btn-action" onclick="show('home')">🔙</button>
+</div>
 
-    <script>
-        const ably = new Ably.Realtime('0xzGaw.lE_D6w:BWnvUIkCtSy0pxAJxzno5KXIXyrP2WhBdfzMJS08ne4');
-        let guest = JSON.parse(localStorage.getItem('guest_data'));
-        let cart = {};
+<div id="cleaning" class="page">
+    <div class="card" onclick="notify('تنظيف الغرفة')">🛏️ تنظيف الغرفة</div>
+    <div class="card" onclick="notify('تغيير مفروشات')">🧼 مفروشات</div>
+    <button class="btn-action" onclick="show('home')">🔙</button>
+</div>
 
-        // بناء المنيو
-        const menuItems = ["بيتزا مارجريتا", "باستا وايت صوص", "شاورما", "مشويات", "عصير", "ساندوتش دجاج"]; 
-        const container = document.getElementById('menu-container');
-        menuItems.forEach(item => {
-            container.innerHTML += `<div class="card">${item} <button onclick="add('${item}')">+</button></div>`;
-        });
+<script>
+    let cart = {};
+    const menu = [{n: "بيتزا مارجريتا", p: 120}, {n: "باستا", p: 150}, {n: "شاورما", p: 90}];
 
-        function show(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
+    // بناء المنيو
+    let list = document.getElementById('items-list');
+    menu.forEach(item => {
+        list.innerHTML += `<div class="card">${item.n} (${item.p} ج)<br>
+            <button class="btn-action" onclick="change('${item.n}',${item.p},1)">+</button>
+            <span class="qty-box" id="q-${item.n}">0</span>
+            <button class="btn-action" onclick="change('${item.n}',${item.p},-1)">-</button></div>`;
+    });
 
-        function rateNeg() {
-            window.location.href = `https://wa.me/201274847794?text=نزيل ${guest.n} غ ${guest.r} عنده مشكلة.`;
-        }
+    function change(n, p, d) {
+        cart[n] = Math.max(0, (cart[n] || 0) + d);
+        document.getElementById('q-'+n).innerText = cart[n];
+        let tot = 0; menu.forEach(i => tot += (cart[i.n] || 0) * i.p);
+        document.getElementById('total').innerText = tot;
+    }
 
-        // دالة التأكيد والرجوع
-        function confirmOrder() {
-            alert("تم إرسال الطلب للفندق!");
-            show('main');
-        }
+    function sendOrder() {
+        if(document.getElementById('total').innerText == "0") return alert("اختر أصنافاً أولاً!");
+        alert("تم إرسال طلبك للروم سيرفس!"); show('home');
+    }
 
-        // تسجيل البيانات
-        if(!guest) {
-            let n = prompt("الاسم؟"), r = prompt("رقم الغرفة؟");
-            guest = {n, r}; localStorage.setItem('guest_data', JSON.stringify(guest));
-        }
-        document.getElementById('welcome').innerText = "مرحباً يا: " + guest.n;
-        document.getElementById('room').innerText = "غرفة: " + guest.r;
-    </script>
+    function notify(type) { alert("تم إرسال طلب " + type + " للفريق المختص."); show('home'); }
+    function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+</script>
 </body>
 </html>

@@ -2,63 +2,17 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>فندق بيتزا سلايس | خدمات النزلاء</title>
-    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <title>خدمات الفندق الذكية</title>
     <style>
-        body { margin: 0; background: url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80') no-repeat center center fixed; background-size: cover; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
-        .glass { background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); border: 1px solid #c5a059; border-radius: 20px; padding: 25px; margin-bottom: 20px; text-align: center; }
-        .card { background: rgba(197, 160, 89, 0.1); border: 2px solid #c5a059; padding: 30px; margin: 15px 0; border-radius: 20px; cursor: pointer; transition: 0.3s; font-size: 1.5rem; }
-        .card:hover { background: #c5a059; color: black; }
-        .btn-orders { background: #c5a059; padding: 15px; border-radius: 10px; width: 100%; border: none; font-weight: bold; margin-bottom: 20px; }
+        body { background: #0a0a0a; color: #fff; font-family: sans-serif; padding: 20px; }
+        .box { background: #1a1a1a; border: 1px solid #333; padding: 25px; margin-bottom: 20px; border-radius: 15px; text-align: center; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
+        .box:hover { border-color: #ffc107; }
     </style>
 </head>
 <body>
-
-    <div class="glass">
-        <h2 id="welcome">أهلاً بك في فندقنا الفخم</h2>
-        <button class="btn-orders" onclick="showOrders()">طلباتي (انتظار/تنفيذ/تم)</button>
-    </div>
-
-    <div class="card" onclick="openRestaurant()">🍕 قسم المطعم (منيو فاخر)</div>
-    <div class="card" onclick="openMaintenance()">🛠️ قسم الصيانة</div>
-    <div class="card" onclick="openCleaning()">🧹 قسم التنظيف</div>
-    <div class="card" onclick="openRating()">⭐ قيم المكان</div>
-
-    <script>
-        const ably = new Ably.Realtime('0xzGaw.lE_D6w:BWnvUIkCtSy0pxAJxzno5KXIXyrP2WhBdfzMJS08ne4');
-        const channel = ably.channels.get('hotel-service');
-
-        // منيو الطعام
-        const menu = ["بيتزا مارجريتا - 120", "باستا وايت صوص - 150", "ساندوتش دجاج - 90"];
-
-        function openRestaurant() {
-            let list = menu.join('\n');
-            if(confirm("القائمة:\n" + list + "\n\nهل تريد تأكيد طلبك؟")) {
-                channel.publish('order', { type: 'مطعم', msg: 'طلب وجبة' });
-            }
-        }
-
-        function openMaintenance() {
-            let type = prompt("اختر (كهرباء/مياه/غاز)");
-            if(type) {
-                channel.publish('order', { type: 'صيانة', msg: type });
-                alert("تم إرسال بلاغ " + type + " للمشرف");
-            }
-        }
-
-        function openCleaning() {
-            channel.publish('order', { type: 'تنظيف', msg: 'طلب تنظيف الغرفة' });
-            alert("تم إرسال طلب التنظيف للمشرف");
-        }
-
-        function openRating() {
-            if(confirm("إيجابي؟")) { window.location.href = "https://maps.google.com"; }
-            else { window.location.href = "https://wa.me/201016944198?text=عندي مشكلة، أنا " + localStorage.getItem('name') + " غرفة " + localStorage.getItem('room'); }
-        }
-
-        function showOrders() {
-            alert("طلباتك:\nقيد الانتظار: 0\nقيد التنفيذ: 1\nتم التنفيذ: 0");
-        }
-    </script>
+    <div class="box" onclick="window.location.href='restaurant.html'">قسم المطعم</div>
+    <div class="box" onclick="window.location.href='maintenance.html'">قسم الصيانة</div>
+    <div class="box" onclick="window.location.href='cleaning.html'">قسم التنظيف</div>
+    <div class="box" onclick="window.location.href='rating.html'">قيم المكان</div>
 </body>
 </html>

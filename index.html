@@ -1,82 +1,28 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>بيتزا سلايس | الفضاء</title>
-    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
-    <style>
-        /* سحر الفضاء */
-        body {
-            margin: 0;
-            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
-            color: #00f0ff; /* لون النيون الأزرق */
-            font-family: 'Segoe UI', sans-serif;
-            min-height: 100vh;
-            padding: 20px;
-        }
+// أضف هذه المتغيرات في بداية الـ script
+const pusher = new Pusher('YOUR_PUSHER_KEY', { cluster: 'YOUR_CLUSTER' });
+const channel = pusher.subscribe('hotel-channel');
 
-        .header { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 15px; border: 1px solid #00f0ff; display: flex; justify-content: space-between; margin-bottom: 20px; }
+// دالة إرسال الطلبات للأدمن
+function sendOrderToAdmin(orderData) {
+    // نرسل الطلب للأدمن عبر Pusher
+    fetch('https://api.pusher.com/...', { /* كود الإرسال */ });
+    
+    // حفظ الطلب محلياً في "طلباتي"
+    let myOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
+    myOrders.push({ ...orderData, status: 'قيد الانتظار' });
+    localStorage.setItem('myOrders', JSON.stringify(myOrders));
+}
 
-        .space-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid #7000ff; /* نيون بنفسجي */
-            padding: 25px;
-            margin: 15px 0;
-            border-radius: 20px;
-            text-align: center;
-            font-size: 1.3rem;
-            box-shadow: 0 0 15px rgba(112, 0, 255, 0.3);
-            cursor: pointer;
-            transition: 0.4s;
-        }
-
-        .space-card:hover { transform: scale(1.05); box-shadow: 0 0 30px #00f0ff; }
-
-        input { background: rgba(0,0,0,0.6); border: 1px solid #00f0ff; color: white; padding: 12px; width: 100%; border-radius: 10px; margin: 5px 0; }
-    </style>
-</head>
-<body>
-
-    <div id="login" class="header">
-        <h3>تسجيل النزيل الفضائي</h3>
-        <input type="text" id="name" placeholder="الاسم">
-        <input type="text" id="room" placeholder="الغرفة">
-        <button onclick="save()">دخول</button>
-    </div>
-
-    <div id="app" style="display:none;">
-        <div class="header">
-            <span id="u-name"></span> | غرفة <span id="u-room"></span>
-            <button onclick="alert('جارٍ فتح لوحة الطلبات الفضائية...')">طلباتي</button>
-        </div>
-
-        <div class="space-card" onclick="sendOrder('المطعم')">🚀 قسم المطعم</div>
-        <div class="space-card" onclick="sendOrder('الصيانة')">🛰️ قسم الصيانة</div>
-        <div class="space-card" onclick="sendOrder('التنظيف')">🛸 قسم التنظيف</div>
-    </div>
-
-    <script>
-        const ably = new Ably.Realtime('0xzGaw.lE_D6w:BWnvUIkCtSy0pxAJxzno5KXIXyrP2WhBdfzMJS08ne4');
-        const channel = ably.channels.get('space-hotel');
-
-        function save() {
-            localStorage.setItem('name', document.getElementById('name').value);
-            localStorage.setItem('room', document.getElementById('room').value);
-            location.reload();
-        }
-
-        if(localStorage.getItem('name')) {
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            document.getElementById('u-name').innerText = localStorage.getItem('name');
-            document.getElementById('u-room').innerText = localStorage.getItem('room');
-        }
-
-        function sendOrder(s) {
-            channel.publish('new-order', { service: s, user: localStorage.getItem('name') });
-            alert('تم إرسال الطلب عبر المجرة!');
-        }
-    </script>
-</body>
-</html>
+// دالة فتح لوحة طلباتي
+function showMyOrders() {
+    const orders = JSON.parse(localStorage.getItem('myOrders') || '[]');
+    let html = "<h3>طلباتي</h3>";
+    orders.forEach(o => {
+        html += `<div class="item-card">
+            <span>${o.service}</span>
+            <span style="color:var(--neon-pink)">${o.status}</span>
+        </div>`;
+    });
+    // عرض الـ html في مكان مناسب في صفحتك
+    alert(html); 
+}

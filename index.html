@@ -1,23 +1,59 @@
-<script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
-<script>
-    const pusher = new Pusher('YOUR_KEY', { cluster: 'YOUR_CLUSTER' });
-    const channel = pusher.subscribe('hotel-channel');
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>بيتزا سلايس | الفندق الفضائي</title>
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <style>
+        body { background: radial-gradient(circle, #0f0f1a, #000); color: white; font-family: sans-serif; padding: 20px; }
+        .glass { background: rgba(255,255,255,0.05); border: 1px solid #c5a059; border-radius: 20px; padding: 20px; margin-bottom: 15px; }
+        .btn-main { background: #c5a059; color: black; padding: 15px; width: 100%; border-radius: 10px; border: none; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div id="login" class="glass">
+        <h3>تسجيل بيانات النزيل</h3>
+        <input type="text" id="name" placeholder="الاسم الثلاثي">
+        <input type="text" id="room" placeholder="رقم الغرفة">
+        <button class="btn-main" onclick="save()">دخول</button>
+    </div>
 
-    function sendOrder(serviceName) {
-        const orderData = { 
-            name: localStorage.getItem('guest_name'), 
-            room: localStorage.getItem('guest_room'), 
-            service: serviceName, 
-            status: 'قيد الانتظار' 
-        };
-        
-        // إرسال للأدمن
-        channel.trigger('client-new-order', orderData);
-        
-        // حفظ محلياً
-        let myOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
-        myOrders.push(orderData);
-        localStorage.setItem('myOrders', JSON.stringify(myOrders));
-        alert('تم إرسال الطلب!');
-    }
-</script>
+    <div id="app" style="display:none;">
+        <div class="glass">أهلاً <span id="u-name"></span> | غرفة <span id="u-room"></span></div>
+        <div class="glass" onclick="order('بيتزا')">🍕 قسم المطعم</div>
+        <div class="glass" onclick="order('صيانة')">🛠️ قسم الصيانة</div>
+        <button class="btn-main" onclick="showOrders()">طلباتي (قيد الانتظار/التنفيذ)</button>
+    </div>
+
+    <script>
+        const ably = new Ably.Realtime('0xzGaw.lE_D6w:BWnvUIkCtSy0pxAJxzno5KXIXyrP2WhBdfzMJS08ne4');
+        const channel = ably.channels.get('hotel-space');
+
+        function save() {
+            localStorage.setItem('name', document.getElementById('name').value);
+            localStorage.setItem('room', document.getElementById('room').value);
+            location.reload();
+        }
+
+        if(localStorage.getItem('name')) {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('u-name').innerText = localStorage.getItem('name');
+            document.getElementById('u-room').innerText = localStorage.getItem('room');
+        }
+
+        function order(svc) {
+            channel.publish('new-order', { name: localStorage.getItem('name'), service: svc });
+            let o = JSON.parse(localStorage.getItem('myOrders') || '[]');
+            o.push({ service: svc, status: 'قيد الانتظار' });
+            localStorage.setItem('myOrders', JSON.stringify(o));
+            alert('تم إرسال طلبك!');
+        }
+
+        function showOrders() {
+            let o = JSON.parse(localStorage.getItem('myOrders') || '[]');
+            alert(o.map(x => x.service + ': ' + x.status).join('\n'));
+        }
+    </script>
+</body>
+</html>

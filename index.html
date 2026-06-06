@@ -3,56 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خدمات فندق - بيتزا سلايس</title>
+    <title>فندق بيتزا سلايس | 5 نجوم</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
-        body { margin: 0; background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
-        .top-bar { display: flex; justify-content: space-between; padding: 20px; align-items: center; }
-        .btn-orders { background: #c5a059; border: none; padding: 10px 20px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; margin: 15px; }
-        .category { background: rgba(197, 160, 89, 0.2); border: 1px solid #c5a059; width: 90%; margin: 15px auto; padding: 25px; border-radius: 15px; text-align: center; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
-        .category:hover { background: #c5a059; color: black; }
-        .menu-list { max-height: 400px; overflow-y: scroll; padding: 10px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #c5a059; background: rgba(0,0,0,0.3); color: white; }
+        body { margin: 0; background: linear-gradient(135deg, #0f0f1a, #2c2c54); color: #e0e0e0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; padding-bottom: 30px; }
+        
+        /* شريط علوي أنيق */
+        .header { display: flex; justify-content: space-between; padding: 20px; align-items: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid #c5a059; }
+        .user-info { font-weight: bold; color: #c5a059; }
+        .btn-orders { background: #c5a059; border: none; padding: 8px 15px; border-radius: 6px; color: white; cursor: pointer; }
+
+        /* مستطيلات الخدمات */
+        .glass-card { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; margin: 15px; padding: 25px; transition: 0.3s; cursor: pointer; text-align: center; font-size: 1.2rem; }
+        .glass-card:hover { background: rgba(197, 160, 89, 0.2); border-color: #c5a059; }
+        
+        /* فورم التسجيل */
+        .login-box { padding: 40px; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #555; background: #1a1a2e; color: white; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <h2 style="color: #c5a059;">بيتزا سلايس</h2>
-        <button class="btn-orders" onclick="alert('طلباتي:\nانتظار: 0\nتنفيذ: 0\nتم: 0')">طلباتي</button>
+    <div id="app" style="display:none;">
+        <div class="header">
+            <div>
+                <span id="display-name"></span> | غرفة <span id="display-room"></span>
+            </div>
+            <button class="btn-orders" onclick="showOrders()">طلباتي</button>
+        </div>
+
+        <div class="glass-card" onclick="alert('فتح قسم المطعم...')">🍕 قسم المطعم (قائمة طعام فاخرة)</div>
+        <div class="glass-card" onclick="alert('فتح قسم الصيانة...')">🛠️ قسم الصيانة (سباكة/كهرباء/غاز)</div>
+        <div class="glass-card" onclick="alert('فتح قسم التنظيف...')">🧹 قسم التنظيف</div>
+        <div class="glass-card" onclick="alert('فتح التقييم...')">⭐ تقييم التجربة</div>
     </div>
 
-    <div id="login" class="glass">
-        <h3>بيانات الإقامة الفندقية</h3>
+    <div id="login" class="login-box">
+        <h2 style="color:#c5a059; text-align:center;">فندق بيتزا سلايس</h2>
         <input type="text" id="name" placeholder="الاسم الثلاثي">
         <input type="text" id="room" placeholder="رقم الغرفة">
         <input type="text" id="phone" placeholder="رقم الموبايل">
-        <button class="btn-orders" style="width:100%" onclick="save()">بدء الخدمة</button>
-    </div>
-
-    <div id="main" style="display:none;">
-        <div class="category" onclick="alert('جارٍ فتح قائمة المطعم...')">قسم المطعم (أكثر من 30 صنف)</div>
-        <div class="category" onclick="alert('جارٍ فتح قسم الصيانة...')">قسم الصيانة (سباكة/كهرباء)</div>
-        <div class="category" onclick="alert('جارٍ فتح قسم التنظيف...')">قسم التنظيف</div>
-        <div class="category" onclick="document.getElementById('rating').style.display='block'">قيم المكان</div>
-    </div>
-
-    <div id="rating" class="glass" style="display:none;">
-        <button class="category" onclick="alert('شكراً لك')">إيجابي 😊</button>
-        <button class="category" style="border-color: red;" onclick="window.location.href='https://wa.me/201000000000'">سلبي 😞 (تواصل معنا)</button>
+        <button class="glass-card" style="width:100%;" onclick="save()">دخول لخدمات الفندق</button>
     </div>
 
     <script>
         function save() {
             localStorage.setItem('name', document.getElementById('name').value);
             localStorage.setItem('room', document.getElementById('room').value);
-            localStorage.setItem('phone', document.getElementById('phone').value);
             location.reload();
         }
+        
+        // التحقق من وجود بيانات
         if(localStorage.getItem('name')) {
             document.getElementById('login').style.display = 'none';
-            document.getElementById('main').style.display = 'block';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('display-name').innerText = localStorage.getItem('name');
+            document.getElementById('display-room').innerText = localStorage.getItem('room');
+        }
+
+        function showOrders() {
+            alert("طلباتك:\nقيد الانتظار: 0\nقيد التنفيذ: 0\nتم التنفيذ: 0");
         }
     </script>
 </body>

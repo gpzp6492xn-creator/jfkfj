@@ -3,25 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>بوابة النزيل | فندق 5 نجوم</title>
-    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
         :root { --gold: #c5a059; --bg: #0b0e14; }
-        body { background: var(--bg); color: white; font-family: 'Cairo', sans-serif; margin: 0; padding: 15px; }
-        
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #333; }
-        .orders-btn { background: var(--gold); padding: 8px 15px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; }
-        
-        .card { background: rgba(255,255,255,0.03); border: 1px solid #333; padding: 20px; margin: 10px 0; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
+        body { background: var(--bg); color: white; font-family: 'Cairo', sans-serif; margin: 0; padding: 10px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #333; }
+        .orders-btn { background: var(--gold); color: black; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .card { background: rgba(255,255,255,0.05); border: 1px solid #333; padding: 18px; margin: 8px 0; border-radius: 12px; text-align: center; cursor: pointer; }
         .card:hover { border-color: var(--gold); }
-        
+        .item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #222; }
         .page { display: none; } .active { display: block; }
-        .status-tag { font-size: 0.8rem; color: var(--gold); }
+        .btn-sm { padding: 5px 15px; background: var(--gold); border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
-        <div>أهلاً يا: <span id="u-name">...</span></div>
+        <div>أهلاً: <span id="u-name">...</span></div>
         <div class="orders-btn" onclick="show('orders')">📦 طلباتي</div>
     </div>
 
@@ -29,13 +26,13 @@
         <div class="card" onclick="show('restaurant')">🍔 المطعم</div>
         <div class="card" onclick="show('maintenance')">🛠️ الصيانة</div>
         <div class="card" onclick="show('cleaning')">🧹 التنظيف</div>
-        <div class="card" style="border-color: #4CAF50" onclick="window.location.href='https://maps.google.com'">😊 تقييم إيجابي</div>
+        <div class="card" style="border-color: #4CAF50" onclick="window.location.href='https://maps.app.goo.gl/YOUR_MAP_LINK'">😊 تقييم إيجابي</div>
         <div class="card" style="border-color: #f44336" onclick="rateNeg()">😞 تقييم سلبي</div>
     </div>
 
-    <div id="orders" class="page">
-        <h3>سجل طلباتك</h3>
-        <div id="order-log">لا توجد طلبات حالياً</div>
+    <div id="restaurant" class="page">
+        <div id="menu-items"></div>
+        <div class="card" onclick="sendOrder()">تأكيد الطلب | الإجمالي: <span id="total">0</span> ج.م</div>
         <div class="card" onclick="show('main')">🔙 عودة</div>
     </div>
 
@@ -53,26 +50,42 @@
         <div class="card" onclick="show('main')">🔙 عودة</div>
     </div>
 
-    <script>
-        let guest = JSON.parse(localStorage.getItem('guest_data'));
-        document.getElementById('u-name').innerText = guest ? guest.n : "النزيل";
+    <div id="orders" class="page">
+        <h3>سجل طلباتك</h3>
+        <div id="order-log">لا توجد طلبات</div>
+        <div class="card" onclick="show('main')">🔙 عودة</div>
+    </div>
 
-        function show(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+    <script>
+        let cart = {};
+        const menu = [{n: "بيتزا مارجريتا", p: 120}, {n: "شاورما", p: 90}, {n: "مشويات ميكس", p: 350}];
+        
+        // بناء المنيو
+        let list = document.getElementById('menu-items');
+        menu.forEach(i => {
+            list.innerHTML += `<div class="item">${i.n} (${i.p}ج) 
+                <button class="btn-sm" onclick="change('${i.n}',${i.p},1)">+</button>
+                <span id="q-${i.n}">0</span>
+                <button class="btn-sm" onclick="change('${i.n}',${i.p},-1)">-</button></div>`;
+        });
+
+        function change(n, p, d) {
+            cart[n] = Math.max(0, (cart[n] || 0) + d);
+            document.getElementById('q-'+n).innerText = cart[n];
+            let tot = 0; menu.forEach(i => tot += (cart[i.n] || 0) * i.p);
+            document.getElementById('total').innerText = tot;
         }
 
         function send(sec, type) {
-            let log = document.getElementById('order-log');
-            if(log.innerText == "لا توجد طلبات حالياً") log.innerHTML = "";
-            log.innerHTML += `<div class="card">${type} <br> <span class="status-tag">حالة الطلب: قيد الانتظار</span></div>`;
-            alert("تم إرسال طلب " + type + " للفريق!");
-            show('main');
+            document.getElementById('order-log').innerHTML += `<div class="card">${type} <br><small>قيد الانتظار</small></div>`;
+            alert("تم إرسال طلب " + type); show('main');
         }
 
-        function rateNeg() {
-            window.location.href = `https://wa.me/201274847794?text=أنا النزيل ${guest.n}، غرفة ${guest.r}، عندي مشكلة.`;
-        }
+        function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+        function rateNeg() { window.location.href = `https://wa.me/201274847794`; }
+        
+        let guest = JSON.parse(localStorage.getItem('guest_data'));
+        document.getElementById('u-name').innerText = guest ? guest.n : "نزيل";
     </script>
 </body>
 </html>

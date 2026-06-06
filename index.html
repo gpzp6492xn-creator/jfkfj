@@ -3,69 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فندق 5 نجوم - خدمات النزلاء</title>
+    <title>خدمات فندق - بيتزا سلايس</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
-        :root { --gold: #c5a059; --dark: #1a1a1a; --white: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: var(--white); margin: 0; padding: 20px; }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid var(--gold); background: transparent; color: white; box-sizing: border-box; }
-        .category { background: var(--gold); color: black; padding: 20px; border-radius: 15px; margin-bottom: 15px; text-align: center; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .category:hover { transform: scale(1.02); }
-        .hidden { display: none; }
+        body { margin: 0; background: linear-gradient(135deg, #1a1a2e, #16213e); color: white; font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
+        .top-bar { display: flex; justify-content: space-between; padding: 20px; align-items: center; }
+        .btn-orders { background: #c5a059; border: none; padding: 10px 20px; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 25px; margin: 15px; }
+        .category { background: rgba(197, 160, 89, 0.2); border: 1px solid #c5a059; width: 90%; margin: 15px auto; padding: 25px; border-radius: 15px; text-align: center; font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
+        .category:hover { background: #c5a059; color: black; }
+        .menu-list { max-height: 400px; overflow-y: scroll; padding: 10px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #c5a059; background: rgba(0,0,0,0.3); color: white; }
     </style>
 </head>
 <body>
 
-    <div id="profile-section" class="glass">
-        <h3>بيانات الإقامة</h3>
+    <div class="top-bar">
+        <h2 style="color: #c5a059;">بيتزا سلايس</h2>
+        <button class="btn-orders" onclick="alert('طلباتي:\nانتظار: 0\nتنفيذ: 0\nتم: 0')">طلباتي</button>
+    </div>
+
+    <div id="login" class="glass">
+        <h3>بيانات الإقامة الفندقية</h3>
         <input type="text" id="name" placeholder="الاسم الثلاثي">
         <input type="text" id="room" placeholder="رقم الغرفة">
         <input type="text" id="phone" placeholder="رقم الموبايل">
-        <button class="category" style="width:100%" onclick="saveProfile()">حفظ البيانات</button>
+        <button class="btn-orders" style="width:100%" onclick="save()">بدء الخدمة</button>
     </div>
 
-    <div id="services-section" class="hidden">
-        <div class="category" onclick="openMenu('restaurant')">قسم المطعم (قائمة الطعام)</div>
-        <div class="category" onclick="openMenu('maintenance')">قسم الصيانة (سباكة/كهرباء/تكييف)</div>
-        <div class="category" onclick="openMenu('housekeeping')">قسم التنظيف</div>
-        <div class="category" onclick="openRating()">قيم المكان</div>
+    <div id="main" style="display:none;">
+        <div class="category" onclick="alert('جارٍ فتح قائمة المطعم...')">قسم المطعم (أكثر من 30 صنف)</div>
+        <div class="category" onclick="alert('جارٍ فتح قسم الصيانة...')">قسم الصيانة (سباكة/كهرباء)</div>
+        <div class="category" onclick="alert('جارٍ فتح قسم التنظيف...')">قسم التنظيف</div>
+        <div class="category" onclick="document.getElementById('rating').style.display='block'">قيم المكان</div>
     </div>
 
-    <div id="rating-section" class="hidden glass">
-        <h3>كيف كانت تجربتك؟</h3>
-        <button class="category" onclick="handleRating('positive')">إيجابي 😊</button>
-        <button class="category" style="background:#dc3545;" onclick="handleRating('negative')">سلبي 😞</button>
+    <div id="rating" class="glass" style="display:none;">
+        <button class="category" onclick="alert('شكراً لك')">إيجابي 😊</button>
+        <button class="category" style="border-color: red;" onclick="window.location.href='https://wa.me/201000000000'">سلبي 😞 (تواصل معنا)</button>
     </div>
 
     <script>
-        const ably = new Ably.Realtime('0xzGaw.lE_D6w:BWnvUIkCtSy0pxAJxzno5KXIXyrP2WhBdfzMJS08ne4');
-        const channel = ably.channels.get('hotel-service');
-
-        window.onload = () => {
-            if(localStorage.getItem('name')) {
-                document.getElementById('profile-section').classList.add('hidden');
-                document.getElementById('services-section').classList.remove('hidden');
-            }
-        };
-
-        function saveProfile() {
+        function save() {
             localStorage.setItem('name', document.getElementById('name').value);
             localStorage.setItem('room', document.getElementById('room').value);
             localStorage.setItem('phone', document.getElementById('phone').value);
             location.reload();
         }
-
-        function handleRating(type) {
-            if(type === 'positive') { alert("شكراً لتقييمك الرائع!"); }
-            else {
-                const msg = `شكوى من ${localStorage.getItem('name')}، غرفة ${localStorage.getItem('room')}. تفاصيل الشكوى:`;
-                window.open(`https://wa.me/201000000000?text=${encodeURIComponent(msg)}`, '_blank');
-            }
+        if(localStorage.getItem('name')) {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('main').style.display = 'block';
         }
-
-        // ملاحظة: لطلب 30 صنف، يمكنك عمل مصفوفة (Array) داخل دالة openMenu('restaurant') 
-        // لعرض قائمة طويلة باستخدام الـ DOM
     </script>
 </body>
 </html>

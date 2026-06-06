@@ -18,84 +18,52 @@
             --neon-yellow: #ffb700;
             --text-main: #f1f5f9;
         }
-        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: radial-gradient(circle at center, #140f34 0%, var(--bg-space) 100%);
-            color: var(--text-main);
-            margin: 0; padding: 15px; min-height: 100vh;
+            color: var(--text-main); margin: 0; padding: 15px; min-height: 100vh;
         }
-        
         .container { max-width: 480px; margin: 70px auto 40px auto; }
-        
-        /* 🔔 زر طلباتي الثابت أعلى اليمين */
         .my-orders-btn {
             position: fixed; top: 15px; right: 15px; background: rgba(0, 240, 255, 0.1);
             border: 1px solid var(--neon-blue); padding: 10px 18px; border-radius: 50px;
             color: var(--neon-blue); font-weight: bold; cursor: pointer; z-index: 1000;
             display: flex; align-items: center; gap: 8px; backdrop-filter: blur(8px);
-            transition: 0.3s; box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
         }
-        .my-orders-btn:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 20px var(--neon-blue); }
-
-        /* 📋 اللوحة الجانبية المتحركة للطلبات */
         .orders-drawer {
             position: fixed; top: 0; right: -100%; width: 100%; max-width: 360px; height: 100%;
             background: rgba(10, 10, 28, 0.98); backdrop-filter: blur(20px); z-index: 1001;
-            box-shadow: -10px 0 40px rgba(0,0,0,0.6); transition: 0.4s cubic-bezier(0.1, 0.9, 0.2, 1);
-            padding: 25px; box-sizing: border-box; border-left: 1px solid rgba(0, 240, 255, 0.2);
+            transition: 0.4s cubic-bezier(0.1, 0.9, 0.2, 1); padding: 25px; box-sizing: border-box;
+            border-left: 1px solid rgba(0, 240, 255, 0.2);
         }
         .orders-drawer.open { right: 0; }
         .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #223; padding-bottom: 15px; margin-bottom: 20px; }
         .close-drawer { background: none; border: none; color: var(--neon-pink); font-size: 24px; cursor: pointer; }
-
         .status-section { margin-bottom: 25px; }
         .status-title { font-size: 14px; font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .status-waiting { color: var(--neon-yellow); }
         .status-progress { color: var(--neon-blue); }
         .status-done { color: var(--neon-green); }
         .drawer-order-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 12px; border-radius: 12px; font-size: 13px; margin-bottom: 8px; }
-
-        /* 💎 تصميم كروت الشاشة الرئيسية المستطيلة الفخمة */
         .menu-cards-container { display: flex; flex-direction: column; gap: 18px; margin-top: 25px; }
-        
         .service-card {
             background: var(--card-space); border: 1px solid rgba(0, 240, 255, 0.15);
-            border-radius: 20px; padding: 24px; cursor: pointer; position: relative;
-            display: flex; align-items: center; justify-content: space-between;
-            transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            border-radius: 20px; padding: 24px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
+            transition: 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
-        .service-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--neon-blue);
-            box-shadow: 0 8px 25px rgba(0, 240, 255, 0.25);
-        }
+        .service-card:hover { transform: translateY(-4px); border-color: var(--neon-blue); box-shadow: 0 8px 25px rgba(0, 240, 255, 0.25); }
         .card-info { display: flex; align-items: center; gap: 18px; }
-        .card-icon {
-            font-size: 28px; width: 55px; height: 55px; 
-            background: rgba(255, 255, 255, 0.03); border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .card-restaurant .card-icon { color: #ff9f1c; text-shadow: 0 0 10px rgba(255,159,28,0.4); }
-        .card-maintenance .card-icon { color: var(--neon-blue); text-shadow: 0 0 10px rgba(0,240,255,0.4); }
-        .card-cleaning .card-icon { color: var(--neon-green); text-shadow: 0 0 10px rgba(0,255,163,0.4); }
-        .card-rating .card-icon { color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255,183,0,0.4); }
-        
+        .card-icon { font-size: 28px; width: 55px; height: 55px; background: rgba(255, 255, 255, 0.03); border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+        .card-restaurant .card-icon { color: #ff9f1c; }
         .card-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
         .card-desc { font-size: 13px; color: #94a3b8; }
-        .arrow-left { color: #475569; font-size: 18px; }
-
-        /* لوحات النوافذ الداخلية للخدمات */
-        .glass-panel { background: var(--card-space); backdrop-filter: blur(15px); border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 28px; padding: 30px; box-shadow: 0 0 40px rgba(0, 240, 255, 0.1); }
+        .glass-panel { background: var(--card-space); backdrop-filter: blur(15px); border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 28px; padding: 30px; }
         h2 { text-align: center; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; margin-top: 0; }
         .input-group { margin-bottom: 20px; }
         label { display: block; font-size: 13px; color: var(--neon-blue); margin-bottom: 8px; font-weight: bold; }
-        input, select { width: 100%; padding: 15px 18px; background: rgba(5, 5, 15, 0.8); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 14px; color: white; box-sizing: border-box; outline: none; font-size: 16px; }
-        
-        .btn-neon { width: 100%; background: linear-gradient(135deg, #00b4d8, var(--neon-purple)); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 12px; transition: 0.3s; font-size: 16px; }
-        .btn-neon:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(0, 240, 255, 0.5); }
-        
+        input, select { width: 100%; padding: 15px 18px; background: rgba(5, 5, 15, 0.8); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 14px; color: white; box-sizing: border-box; outline: none; }
+        .btn-neon { width: 100%; background: linear-gradient(135deg, #00b4d8, var(--neon-purple)); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 12px; }
         .hidden { display: none !important; }
         .item-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 18px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
         .counter-box { display: flex; align-items: center; gap: 15px; background: rgba(0, 0, 0, 0.5); padding: 6px 12px; border-radius: 10px; }
@@ -117,15 +85,15 @@
         </div>
         <div class="status-section">
             <div class="status-title status-waiting"><i class="fa-solid fa-hourglass-half"></i> قيد الانتظار</div>
-            <div id="list-waiting"><p style="color:#64748b; font-size:12px; margin:5px 0;">لا توجد طلبات معلقة</p></div>
+            <div id="list-waiting"></div>
         </div>
         <div class="status-section">
             <div class="status-title status-progress"><i class="fa-solid fa-spinner fa-spin"></i> جاري تنفيذها</div>
-            <div id="list-progress"><p style="color:#64748b; font-size:12px; margin:5px 0;">لا توجد طلبات قيد التنفيذ حالياً</p></div>
+            <div id="list-progress"></div>
         </div>
         <div class="status-section">
             <div class="status-title status-done"><i class="fa-solid fa-circle-check"></i> تم التنفيذ</div>
-            <div id="list-done"><p style="color:#64748b; font-size:12px; margin:5px 0;">لم يتم إنهاء أي طلب بعد</p></div>
+            <div id="list-done"></div>
         </div>
     </div>
 
@@ -133,8 +101,8 @@
         <div id="setup-step" class="glass-panel">
             <h2><i class="fa-solid fa-bolt"></i> بوابة النزلاء الذكية</h2>
             <div class="input-group">
-                <label><i class="fa-solid fa-user"></i> الاسم رباعي:</label>
-                <input type="text" id="guest-name" placeholder="محمد أحمد محمود">
+                <label><i class="fa-solid fa-user"></i> الاسم:</label>
+                <input type="text" id="guest-name" placeholder="محمد أحمد">
             </div>
             <div class="input-group">
                 <label><i class="fa-solid fa-door-open"></i> رقم الغرفة:</label>
@@ -144,47 +112,24 @@
                 <label><i class="fa-solid fa-phone"></i> رقم الهاتف:</label>
                 <input type="tel" id="guest-phone" placeholder="01012345678">
             </div>
-            <button class="btn-neon" onclick="saveProfile()">اتصال بالمركبة الفندقية 🚀</button>
+            <button class="btn-neon" onclick="saveProfile()">دخول 🚀</button>
         </div>
 
         <div id="app-step" class="hidden">
             <div class="glass-panel" style="padding: 20px; margin-bottom: 20px;">
-                <h2 id="welcome-msg" style="margin:0; font-size: 22px;">بوابة النزيل الفاخر</h2>
+                <h2 id="welcome-msg" style="margin:0; font-size: 22px;">بوابة النزيل</h2>
             </div>
             
             <div id="menu-home" class="menu-cards-container">
-                
                 <div class="service-card card-restaurant" onclick="openSection('restaurant-view')">
                     <div class="card-info">
                         <div class="card-icon"><i class="fa-solid fa-hamburger"></i></div>
                         <div>
                             <div class="card-title">طلبات المطعم</div>
-                            <div class="card-desc">الوجبات السريعة والأطباق الفاخرة للغرفة</div>
+                            <div class="card-desc">اطلب وجبتك فوراً للغرفة</div>
                         </div>
                     </div>
-                    <i class="fa-solid fa-chevron-left arrow-left"></i>
-                </div>
-
-                <div class="service-card card-maintenance" onclick="openSection('maintenance-view')">
-                    <div class="card-info">
-                        <div class="card-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-                        <div>
-                            <div class="card-title">صيانة الغرفة</div>
-                            <div class="card-desc">بلاغات أعطال الكهرباء، التكييف، والسباكة</div>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-left arrow-left"></i>
-                </div>
-
-                <div class="service-card card-cleaning" onclick="openSection('cleaning-view')">
-                    <div class="card-info">
-                        <div class="card-icon"><i class="fa-solid fa-broom"></i></div>
-                        <div>
-                            <div class="card-title">خدمة النظافة</div>
-                            <div class="card-desc">طلب ترتيب، تعقيم، وتطهير الغرفة فوراً</div>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-left arrow-left"></i>
+                    <i class="fa-solid fa-chevron-left"></i>
                 </div>
 
                 <div class="service-card card-rating" onclick="toggleRatingMenu()">
@@ -192,41 +137,22 @@
                         <div class="card-icon"><i class="fa-solid fa-star"></i></div>
                         <div>
                             <div class="card-title">تقييم المكان والشكاوى</div>
-                            <div class="card-desc">رأيك يهمنا لتطوير مستوى جودة الخدمة</div>
+                            <div class="card-desc">انزل تحت لتقييم تجربتك معنا</div>
                         </div>
                     </div>
-                    <i class="fa-solid fa-chevron-down arrow-left" id="rating-arrow"></i>
+                    <i class="fa-solid fa-chevron-down" id="rating-arrow"></i>
                 </div>
                 
                 <div id="rating-submenu" class="rating-box hidden">
                     <button class="btn-neon" style="background:#00b4d8; padding: 12px;" onclick="window.open('https://search.google.com/local/writereview?placeid=ChIJawk683AvVhQRWPXoXaiXeCw', '_blank')">👍 تقييم إيجابي (جوجل)</button>
-                    <button class="btn-neon" style="background:var(--neon-pink); padding: 12px;" onclick="sendComplaint()">👎 تقييم سلبي / شكوى</button>
+                    <button class="btn-neon" style="background:var(--neon-pink); padding: 12px;" onclick="sendComplaint()">👎 تقديم شكوى</button>
                 </div>
-                
             </div>
 
             <div id="restaurant-view" class="glass-panel hidden">
-                <h3 style="color:var(--neon-blue); text-align:center; margin-top:0;">👨‍🍳 منيو المطبخ الفاخر</h3>
+                <h3 style="color:var(--neon-blue); text-align:center; margin-top:0;">👨‍🍳 المنيو الفاخر</h3>
                 <div id="food-list"></div>
-                <button class="btn-neon" style="background:#334155; margin-top:20px;" onclick="goHome()">🔙 عودة للرئيسية</button>
-            </div>
-
-            <div id="maintenance-view" class="glass-panel hidden">
-                <h3 style="color:var(--neon-blue); text-align:center; margin-top:0;">🔧 طلب صيانة فورية</h3>
-                <label>نوع العطل الفني:</label>
-                <select id="maint-type">
-                    <option value="كهرباء">⚡ أعطال الكهرباء والتكييف</option>
-                    <option value="سباكة">🚰 أعطال السباكة والمياه</option>
-                </select>
-                <button class="btn-neon" style="margin-top:25px;" onclick="addNewRequest('maintenance')">إرسال بلاغ الصيانة 🛠️</button>
-                <button class="btn-neon" style="background:#334155; margin-top:10px;" onclick="goHome()">إلغاء</button>
-            </div>
-
-            <div id="cleaning-view" class="glass-panel hidden">
-                <h3 style="color:var(--neon-blue); text-align:center; margin-top:0;">🧹 خدمة الـ Housekeeping</h3>
-                <p style="text-align: center; color: #94a3b8; line-height: 1.6;">سيتوجه طاقم النظافة الخاص بالفندق إلى غرفتك لتعقيمها وترتيبها بالكامل فوراً وبأعلى معايير الأمان.</p>
-                <button class="btn-neon" style="background:#10b981;" onclick="addNewRequest('cleaning')">🚀 تأكيد طلب النظافة الآن</button>
-                <button class="btn-neon" style="background:#334155; margin-top:10px;" onclick="goHome()">إلغاء</button>
+                <button class="btn-neon" style="background:#334155; margin-top:20px;" onclick="goHome()">🔙 عودة</button>
             </div>
         </div>
     </div>
@@ -237,11 +163,14 @@
     </div>
 
     <script>
-        const PUSHER_KEY = '6cf98889a71b267dc63b'; // ضع الـ Key الخاص بك هنا
-        const PUSHER_CLUSTER = 'eu';             // ضع الـ Cluster الخاص بك هنا
+        // مفاتيحك الشخصية الصحيحة من بوشر
+        const PUSHER_KEY = 'ac85f6d2d545d57adcf'; 
+        const PUSHER_CLUSTER = 'eu';             
 
-        let pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER });
-        let hotelChannel = pusher.subscribe('hotel-channel');
+        let pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER, forceTLS: true });
+        
+        // تعديل اسم القناة لتبدأ بـ client- لتجنب طلب سيرفر أمان
+        let hotelChannel = pusher.subscribe('client-hotel-channel');
 
         const FOOD_MENU = [
             { id: 1, name: "الوجبة الإقتصادية", price: 120 },
@@ -256,13 +185,13 @@
                 document.getElementById('setup-step').classList.add('hidden');
                 document.getElementById('app-step').classList.remove('hidden');
                 document.getElementById('my-orders-trigger').classList.remove('hidden');
-                renderWelcome();
-                renderLocalOrders();
+                renderWelcome(); renderLocalOrders();
             }
             renderFoodMenu();
         };
 
-        hotelChannel.bind('status-updated', function(data) {
+        // الاستماع لتحديثات الأونر
+        hotelChannel.bind('client-status-updated', function(data) {
             let localOrders = JSON.parse(localStorage.getItem('my_orders') || '[]');
             let order = localOrders.find(o => o.id === data.orderId);
             if(order) {
@@ -276,40 +205,34 @@
             const name = document.getElementById('guest-name').value.trim();
             const room = document.getElementById('guest-room').value.trim();
             const phone = document.getElementById('guest-phone').value.trim();
-            if(!name || !room || !phone) { alert("برجاء ملء البيانات أولاً للدخول!"); return; }
+            if(!name || !room || !phone) { alert("برجاء ملء البيانات أولاً!"); return; }
             localStorage.setItem('guest_name', name);
             localStorage.setItem('guest_room', room);
             localStorage.setItem('guest_phone', phone);
             location.reload();
         }
 
-        function renderWelcome() { 
-            document.getElementById('welcome-msg').innerText = "غرفة " + localStorage.getItem('guest_room') + " | " + localStorage.getItem('guest_name'); 
-        }
+        function renderWelcome() { document.getElementById('welcome-msg').innerText = "غرفة " + localStorage.getItem('guest_room') + " | " + localStorage.getItem('guest_name'); }
         
         function renderFoodMenu() {
-            const container = document.getElementById('food-list');
-            container.innerHTML = '';
+            const container = document.getElementById('food-list'); container.innerHTML = '';
             FOOD_MENU.forEach(item => {
-                container.innerHTML += `
-                    <div class="item-card">
-                        <div><strong>${item.name}</strong><br><span style="color:#ffca28;">${item.price} EGP</span></div>
-                        <div class="counter-box">
-                            <button class="btn-count" onclick="updateCart('${item.name}', -1)">-</button>
-                            <span class="item-qty" id="qty-${item.id}">0</span>
-                            <button class="btn-count" onclick="updateCart('${item.name}', 1)">+</button>
-                        </div>
-                    </div>`;
+                container.innerHTML += `<div class="item-card">
+                    <div><strong>${item.name}</strong><br><span style="color:#ffca28;">${item.price} EGP</span></div>
+                    <div class="counter-box">
+                        <button class="btn-count" onclick="updateCart('${item.name}', -1)">-</button>
+                        <span class="item-qty" id="qty-${item.id}">0</span>
+                        <button class="btn-count" onclick="updateCart('${item.name}', 1)">+</button>
+                    </div>
+                </div>`;
             });
         }
 
         function updateCart(name, change) {
-            if(!cart[name]) cart[name] = 0;
-            cart[name] += change;
+            if(!cart[name]) cart[name] = 0; cart[name] += change;
             if(cart[name] <= 0) delete cart[name];
             const prod = FOOD_MENU.find(f => f.name === name);
-            const el = document.getElementById("qty-" + prod.id);
-            if(el) el.innerText = cart[name] || 0;
+            document.getElementById("qty-" + prod.id).innerText = cart[name] || 0;
             updateCartBar();
         }
 
@@ -322,94 +245,50 @@
             } else { document.getElementById('cart-floating-bar').classList.add('hidden'); }
         }
 
-        function openSection(id) { 
-            document.getElementById('menu-home').classList.add('hidden'); 
-            document.getElementById(id).classList.remove('hidden'); 
-            updateCartBar(); 
-        }
-        
-        function goHome() { 
-            document.getElementById('restaurant-view').classList.add('hidden'); 
-            document.getElementById('maintenance-view').classList.add('hidden'); 
-            document.getElementById('cleaning-view').classList.add('hidden'); 
-            document.getElementById('cart-floating-bar').classList.add('hidden'); 
-            document.getElementById('menu-home').classList.remove('hidden'); 
-        }
-        
-        function toggleRatingMenu() { 
-            document.getElementById('rating-submenu').classList.toggle('hidden'); 
-            const arrow = document.getElementById('rating-arrow');
-            if(arrow.classList.contains('fa-chevron-down')) {
-                arrow.classList.replace('fa-chevron-down', 'fa-chevron-up');
-            } else {
-                arrow.classList.replace('fa-chevron-up', 'fa-chevron-down');
-            }
-        }
-        
-        function toggleDrawer(open) { 
-            if(open) document.getElementById('orders-drawer').classList.add('open'); 
-            else document.getElementById('orders-drawer').classList.remove('open'); 
-        }
+        function openSection(id) { document.getElementById('menu-home').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); updateCartBar(); }
+        function goHome() { document.getElementById('restaurant-view').classList.add('hidden'); document.getElementById('cart-floating-bar').classList.add('hidden'); document.getElementById('menu-home').classList.remove('hidden'); }
+        function toggleRatingMenu() { document.getElementById('rating-submenu').classList.toggle('hidden'); }
+        function toggleDrawer(open) { if(open) document.getElementById('orders-drawer').classList.add('open'); else document.getElementById('orders-drawer').classList.remove('open'); }
 
         function addNewRequest(type) {
-            let details = "";
-            let prefix = "";
-            let totalPrice = 0;
-
+            let details = ""; let prefix = ""; let totalPrice = 0;
             if (type === 'restaurant') {
-                let items = []; for (const [n, q] of Object.entries(cart)) items.push(`${n} (${q})`);
+                let items = []; for (const [n, q] of Object.entries(cart)) { items.push(`${n} (${q})`); totalPrice += FOOD_MENU.find(f=>f.name===n).price * q; }
                 details = items.join('، '); prefix = "🍔 طلب مطعم: ";
-            } else if (type === 'maintenance') {
-                details = document.getElementById('maint-type').value; prefix = "🔧 صيانة: عطل ";
-            } else if (type === 'cleaning') {
-                details = "تنظيف وتعقيم الغرفة بالكامل"; prefix = "🧹 ";
             }
 
             const orderId = 'ord-' + Date.now();
             const newOrder = { id: orderId, text: prefix + details, status: 'waiting' };
 
             let localOrders = JSON.parse(localStorage.getItem('my_orders') || '[]');
-            localOrders.push(newOrder);
-            localStorage.setItem('my_orders', JSON.stringify(localOrders));
+            localOrders.push(newOrder); localStorage.setItem('my_orders', JSON.stringify(localOrders));
             renderLocalOrders();
 
-            // إرسال الإشارة فورا لـ Pusher بدون تأخير ثانية
+            // الإرسال المباشر للأدمن بحدث مخصص يبدأ بـ client-
             hotelChannel.trigger('client-restaurant-order', {
-                id: orderId,
-                type: type,
+                id: orderId, type: type,
                 name: localStorage.getItem('guest_name'),
                 room: localStorage.getItem('guest_room'),
                 phone: localStorage.getItem('guest_phone'),
-                details: details,
-                total: totalPrice
+                details: details, total: totalPrice
             });
 
-            alert("🚀 طار الطلب فوراً!");
+            alert("🚀 طار الطلب فوراً للمطبخ!");
             if(type === 'restaurant') cart = {};
-            goHome();
-            toggleDrawer(true);
+            goHome(); toggleDrawer(true);
         }
 
         function renderLocalOrders() {
-            const waitingBox = document.getElementById('list-waiting');
-            const progressBox = document.getElementById('list-progress');
-            const doneBox = document.getElementById('list-done');
+            const waitingBox = document.getElementById('list-waiting'); const progressBox = document.getElementById('list-progress'); const doneBox = document.getElementById('list-done');
             waitingBox.innerHTML = ''; progressBox.innerHTML = ''; doneBox.innerHTML = '';
             let localOrders = JSON.parse(localStorage.getItem('my_orders') || '[]');
-            let counts = { waiting: 0, progress: 0, done: 0 };
-
             localOrders.forEach(order => {
                 const html = `<div class="drawer-order-item"><strong>${order.text}</strong></div>`;
-                if(order.status === 'waiting') { waitingBox.innerHTML += html; counts.waiting++; }
-                else if(order.status === 'progress') { progressBox.innerHTML += html; counts.progress++; }
-                else if(order.status === 'done') { doneBox.innerHTML += html; counts.done++; }
+                if(order.status === 'waiting') waitingBox.innerHTML += html;
+                else if(order.status === 'progress') progressBox.innerHTML += html;
+                else if(order.status === 'done') doneBox.innerHTML += html;
             });
-
-            if(counts.waiting === 0) waitingBox.innerHTML = '<p style="color:#64748b; font-size:12px; margin:5px 0;">لا توجد طلبات معلقة</p>';
-            if(counts.progress === 0) progressBox.innerHTML = '<p style="color:#64748b; font-size:12px; margin:5px 0;">لا توجد طلبات قيد التنفيذ حالياً</p>';
-            if(counts.done === 0) doneBox.innerHTML = '<p style="color:#64748b; font-size:12px; margin:5px 0;">لم يتم إنهاء أي طلب بعد</p>';
         }
-
         function sendComplaint() { window.location.href = "https://wa.me/+2001016944198?text=" + encodeURIComponent("شكوى من غرفة " + localStorage.getItem('guest_room')); }
     </script>
 </body>

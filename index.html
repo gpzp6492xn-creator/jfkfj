@@ -1,18 +1,35 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>خدمات الفندق الذكية</title>
     <style>
-        body { background: #0a0a0a; color: #fff; font-family: sans-serif; padding: 20px; }
-        .box { background: #1a1a1a; border: 1px solid #333; padding: 25px; margin-bottom: 20px; border-radius: 15px; text-align: center; font-size: 1.5rem; cursor: pointer; transition: 0.3s; }
-        .box:hover { border-color: #ffc107; }
+        body { background: #0b0e14; color: #fff; font-family: sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #7000ff; /* Neon Purple */
+            padding: 20px;
+            margin: 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.2);
+        }
+        .btn-neon {
+            background: linear-gradient(90deg, #00d4ff, #7000ff);
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <div class="box" onclick="window.location.href='restaurant.html'">قسم المطعم</div>
-    <div class="box" onclick="window.location.href='maintenance.html'">قسم الصيانة</div>
-    <div class="box" onclick="window.location.href='cleaning.html'">قسم التنظيف</div>
-    <div class="box" onclick="window.location.href='rating.html'">قيم المكان</div>
+    <div id="login-section" class="glass-card">
+        <h3>تسجيل الدخول</h3>
+        <input type="text" id="name" placeholder="الاسم الثلاثي">
+        <input type="text" id="room" placeholder="رقم الغرفة">
+        <input type="text" id="phone" placeholder="رقم الموبايل">
+        <button class="btn-neon" onclick="saveData()">حفظ البيانات</button>
+    </div>
 </body>
 </html>

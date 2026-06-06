@@ -2,286 +2,39 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة الخدمات الذكية - الفندق الفاخر</title>
-    <script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <title>خدمات فندق بيتزا سلايس</title>
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
-        :root {
-            --bg-space: #070714;
-            --card-space: rgba(20, 20, 45, 0.85);
-            --neon-blue: #00f0ff;
-            --neon-purple: #bd00ff;
-            --neon-pink: #ff007a;
-            --neon-green: #00ffa3;
-            --neon-yellow: #ffb700;
-            --text-main: #f1f5f9;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: radial-gradient(circle at center, #140f34 0%, var(--bg-space) 100%);
-            color: var(--text-main); margin: 0; padding: 15px; min-height: 100vh;
-        }
-        .container { max-width: 480px; margin: 70px auto 40px auto; }
-        .my-orders-btn {
-            position: fixed; top: 15px; right: 15px; background: rgba(0, 240, 255, 0.1);
-            border: 1px solid var(--neon-blue); padding: 10px 18px; border-radius: 50px;
-            color: var(--neon-blue); font-weight: bold; cursor: pointer; z-index: 1000;
-            display: flex; align-items: center; gap: 8px; backdrop-filter: blur(8px);
-            box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
-        }
-        .orders-drawer {
-            position: fixed; top: 0; right: -100%; width: 100%; max-width: 360px; height: 100%;
-            background: rgba(10, 10, 28, 0.98); backdrop-filter: blur(20px); z-index: 1001;
-            transition: 0.4s cubic-bezier(0.1, 0.9, 0.2, 1); padding: 25px; box-sizing: border-box;
-            border-left: 1px solid rgba(0, 240, 255, 0.2);
-        }
-        .orders-drawer.open { right: 0; }
-        .drawer-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #223; padding-bottom: 15px; margin-bottom: 20px; }
-        .close-drawer { background: none; border: none; color: var(--neon-pink); font-size: 24px; cursor: pointer; }
-        .status-section { margin-bottom: 25px; }
-        .status-title { font-size: 14px; font-weight: bold; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; padding-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .status-waiting { color: var(--neon-yellow); }
-        .status-progress { color: var(--neon-blue); }
-        .status-done { color: var(--neon-green); }
-        .drawer-order-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 12px; border-radius: 12px; font-size: 13px; margin-bottom: 8px; }
-        .menu-cards-container { display: flex; flex-direction: column; gap: 18px; margin-top: 25px; }
-        .service-card {
-            background: var(--card-space); border: 1px solid rgba(0, 240, 255, 0.15);
-            border-radius: 20px; padding: 24px; cursor: pointer; display: flex; align-items: center; justify-content: space-between;
-            transition: 0.3s; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-        .service-card:hover { transform: translateY(-4px); border-color: var(--neon-blue); box-shadow: 0 8px 25px rgba(0, 240, 255, 0.25); }
-        .card-info { display: flex; align-items: center; gap: 18px; }
-        .card-icon { font-size: 28px; width: 55px; height: 55px; background: rgba(255, 255, 255, 0.03); border-radius: 14px; display: flex; align-items: center; justify-content: center; }
-        .card-restaurant .card-icon { color: #ff9f1c; }
-        .card-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
-        .card-desc { font-size: 13px; color: #94a3b8; }
-        .glass-panel { background: var(--card-space); backdrop-filter: blur(15px); border: 1px solid rgba(0, 240, 255, 0.15); border-radius: 28px; padding: 30px; }
-        h2 { text-align: center; background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; margin-top: 0; }
-        .input-group { margin-bottom: 20px; }
-        label { display: block; font-size: 13px; color: var(--neon-blue); margin-bottom: 8px; font-weight: bold; }
-        input, select { width: 100%; padding: 15px 18px; background: rgba(5, 5, 15, 0.8); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 14px; color: white; box-sizing: border-box; outline: none; }
-        .btn-neon { width: 100%; background: linear-gradient(135deg, #00b4d8, var(--neon-purple)); color: white; border: none; padding: 16px; border-radius: 16px; font-weight: bold; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 12px; }
-        .hidden { display: none !important; }
-        .item-card { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 18px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
-        .counter-box { display: flex; align-items: center; gap: 15px; background: rgba(0, 0, 0, 0.5); padding: 6px 12px; border-radius: 10px; }
-        .btn-count { background: none; border: none; color: var(--neon-blue); font-size: 22px; cursor: pointer; }
-        .cart-bar { background: linear-gradient(135deg, #03001e, #7303c0); border-top: 2px solid var(--neon-blue); position: fixed; bottom: 0; left: 0; width: 100%; padding: 18px 24px; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; border-radius: 24px 24px 0 0; z-index: 999; }
-        .rating-box { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        body { font-family: sans-serif; background: #f8f9fa; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .btn { display: block; width: 100%; padding: 15px; border: none; border-radius: 10px; background: #007bff; color: white; font-weight: bold; margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
-
-    <button id="my-orders-trigger" class="my-orders-btn hidden" onclick="toggleDrawer(true)">
-        <i class="fa-solid fa-clock-history"></i> طلباتي 
-    </button>
-
-    <div id="orders-drawer" class="orders-drawer">
-        <div class="drawer-header">
-            <h3 style="margin:0; color: var(--neon-blue);"><i class="fa-solid fa-bell"></i> تتبع طلباتك</h3>
-            <button class="close-drawer" onclick="toggleDrawer(false)"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="status-section">
-            <div class="status-title status-waiting"><i class="fa-solid fa-hourglass-half"></i> قيد الانتظار</div>
-            <div id="list-waiting"></div>
-        </div>
-        <div class="status-section">
-            <div class="status-title status-progress"><i class="fa-solid fa-spinner fa-spin"></i> جاري تنفيذها</div>
-            <div id="list-progress"></div>
-        </div>
-        <div class="status-section">
-            <div class="status-title status-done"><i class="fa-solid fa-circle-check"></i> تم التنفيذ</div>
-            <div id="list-done"></div>
-        </div>
+    <h2>مرحباً بك في فندقنا</h2>
+    <div class="card">
+        <h3>قيم المكان</h3>
+        <input type="text" id="guest-room" placeholder="رقم الغرفة">
     </div>
 
-    <div class="container">
-        <div id="setup-step" class="glass-panel">
-            <h2><i class="fa-solid fa-bolt"></i> بوابة النزلاء الذكية</h2>
-            <div class="input-group">
-                <label><i class="fa-solid fa-user"></i> الاسم:</label>
-                <input type="text" id="guest-name" placeholder="محمد أحمد">
-            </div>
-            <div class="input-group">
-                <label><i class="fa-solid fa-door-open"></i> رقم الغرفة:</label>
-                <input type="number" id="guest-room" placeholder="204">
-            </div>
-            <div class="input-group">
-                <label><i class="fa-solid fa-phone"></i> رقم الهاتف:</label>
-                <input type="tel" id="guest-phone" placeholder="01012345678">
-            </div>
-            <button class="btn-neon" onclick="saveProfile()">دخول 🚀</button>
-        </div>
-
-        <div id="app-step" class="hidden">
-            <div class="glass-panel" style="padding: 20px; margin-bottom: 20px;">
-                <h2 id="welcome-msg" style="margin:0; font-size: 22px;">بوابة النزيل</h2>
-            </div>
-            
-            <div id="menu-home" class="menu-cards-container">
-                <div class="service-card card-restaurant" onclick="openSection('restaurant-view')">
-                    <div class="card-info">
-                        <div class="card-icon"><i class="fa-solid fa-hamburger"></i></div>
-                        <div>
-                            <div class="card-title">طلبات المطعم</div>
-                            <div class="card-desc">اطلب وجبتك فوراً للغرفة</div>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-left"></i>
-                </div>
-
-                <div class="service-card card-rating" onclick="toggleRatingMenu()">
-                    <div class="card-info">
-                        <div class="card-icon"><i class="fa-solid fa-star"></i></div>
-                        <div>
-                            <div class="card-title">تقييم المكان والشكاوى</div>
-                            <div class="card-desc">انزل تحت لتقييم تجربتك معنا</div>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-down" id="rating-arrow"></i>
-                </div>
-                
-                <div id="rating-submenu" class="rating-box hidden">
-                    <button class="btn-neon" style="background:#00b4d8; padding: 12px;" onclick="window.open('https://search.google.com/local/writereview?placeid=ChIJawk683AvVhQRWPXoXaiXeCw', '_blank')">👍 تقييم إيجابي (جوجل)</button>
-                    <button class="btn-neon" style="background:var(--neon-pink); padding: 12px;" onclick="sendComplaint()">👎 تقديم شكوى</button>
-                </div>
-            </div>
-
-            <div id="restaurant-view" class="glass-panel hidden">
-                <h3 style="color:var(--neon-blue); text-align:center; margin-top:0;">👨‍🍳 المنيو الفاخر</h3>
-                <div id="food-list"></div>
-                <button class="btn-neon" style="background:#334155; margin-top:20px;" onclick="goHome()">🔙 عودة</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="cart-floating-bar" class="cart-bar hidden">
-        <div><span id="cart-total-price" style="font-size:22px; font-weight:bold; color:#ffca28;">0 EGP</span></div>
-        <button onclick="addNewRequest('restaurant')" class="btn-neon" style="width:auto; padding: 10px 20px;">تأكيد الطلب 👨‍🍳</button>
+    <div class="card">
+        <h3>خدمات الصيانة والطلبات</h3>
+        <button class="btn" onclick="sendRequest('خدمات الصيانة المائية')">طلب صيانة مائية</button>
+        <button class="btn" onclick="sendRequest('خدمات مرافق الغاز')">طلب فحص مرافق الغاز</button>
+        <button class="btn" onclick="sendRequest('الدعم الكهربائي وتكييف الهواء')">طلب دعم تكييف وكهرباء</button>
+        <button class="btn" onclick="sendRequest('طلب بيتزا')">طلب وجبة بيتزا</button>
     </div>
 
     <script>
-        const PUSHER_KEY = 'ac85f6d2d545d57adcf'; 
-        const PUSHER_CLUSTER = 'eu';             
+        const ably = new Ably.Realtime('0xzGaw.lE_D6w:BWnvUIkCtSy0pxAJxzno5KXIXyrP2WhBdfzMJS08ne4');
+        const channel = ably.channels.get('hotel-service');
 
-        let pusher = new Pusher(PUSHER_KEY, { cluster: PUSHER_CLUSTER, forceTLS: true });
-        
-        // تعديل: قناة عامة بدون تشفير معقد عشان تقبل الاستقبال المباشر
-        let hotelChannel = pusher.subscribe('hotel-channel');
-
-        const FOOD_MENU = [
-            { id: 1, name: "الوجبة الإقتصادية", price: 120 },
-            { id: 2, name: "وجبة إلدو خور", price: 140 },
-            { id: 3, name: "وجبة الجوكر", price: 145 },
-            { id: 4, name: "فرخة مشوية كاملة", price: 310 }
-        ];
-        let cart = {};
-
-        window.onload = function() {
-            if(localStorage.getItem('guest_name')) {
-                document.getElementById('setup-step').classList.add('hidden');
-                document.getElementById('app-step').classList.remove('hidden');
-                document.getElementById('my-orders-trigger').classList.remove('hidden');
-                renderWelcome(); renderLocalOrders();
-            }
-            renderFoodMenu();
-        };
-
-        // النزيل بيسمع لتحديث الحالة اللي هتبعتها من الـ Debug Console
-        hotelChannel.bind('client-status-updated', function(data) {
-            let localOrders = JSON.parse(localStorage.getItem('my_orders') || '[]');
-            let order = localOrders.find(o => o.id === data.orderId);
-            if(order) {
-                order.status = data.newStatus;
-                localStorage.setItem('my_orders', JSON.stringify(localOrders));
-                renderLocalOrders();
-            }
-        });
-
-        function saveProfile() {
-            const name = document.getElementById('guest-name').value.trim();
-            const room = document.getElementById('guest-room').value.trim();
-            const phone = document.getElementById('guest-phone').value.trim();
-            if(!name || !room || !phone) { alert("برجاء ملء البيانات أولاً!"); return; }
-            localStorage.setItem('guest_name', name);
-            localStorage.setItem('guest_room', room);
-            localStorage.setItem('guest_phone', phone);
-            location.reload();
+        function sendRequest(service) {
+            const room = document.getElementById('guest-room').value;
+            if(!room) { alert('من فضلك حدد رقم الغرفة'); return; }
+            channel.publish('new-order', { service: service, room: room });
+            alert('تم إرسال طلبك بنجاح!');
         }
-
-        function renderWelcome() { document.getElementById('welcome-msg').innerText = "غرفة " + localStorage.getItem('guest_room') + " | " + localStorage.getItem('guest_name'); }
-        
-        function renderFoodMenu() {
-            const container = document.getElementById('food-list'); container.innerHTML = '';
-            FOOD_MENU.forEach(item => {
-                container.innerHTML += `<div class="item-card">
-                    <div><strong>${item.name}</strong><br><span style="color:#ffca28;">${item.price} EGP</span></div>
-                    <div class="counter-box">
-                        <button class="btn-count" onclick="updateCart('${item.name}', -1)">-</button>
-                        <span class="item-qty" id="qty-${item.id}">0</span>
-                        <button class="btn-count" onclick="updateCart('${item.name}', 1)">+</button>
-                    </div>
-                </div>`;
-            });
-        }
-
-        function updateCart(name, change) {
-            if(!cart[name]) cart[name] = 0; cart[name] += change;
-            if(cart[name] <= 0) delete cart[name];
-            const prod = FOOD_MENU.find(f => f.name === name);
-            document.getElementById("qty-" + prod.id).innerText = cart[name] || 0;
-            updateCartBar();
-        }
-
-        function updateCartBar() {
-            let total = 0, has = false;
-            for (const [n, q] of Object.entries(cart)) { total += FOOD_MENU.find(f=>f.name===n).price * q; has = true; }
-            if(has && !document.getElementById('restaurant-view').classList.contains('hidden')) {
-                document.getElementById('cart-floating-bar').classList.remove('hidden');
-                document.getElementById('cart-total-price').innerText = total + " EGP";
-            } else { document.getElementById('cart-floating-bar').classList.add('hidden'); }
-        }
-
-        function openSection(id) { document.getElementById('menu-home').classList.add('hidden'); document.getElementById(id).classList.remove('hidden'); updateCartBar(); }
-        function goHome() { document.getElementById('restaurant-view').classList.add('hidden'); document.getElementById('cart-floating-bar').classList.add('hidden'); document.getElementById('menu-home').classList.remove('hidden'); }
-        function toggleRatingMenu() { document.getElementById('rating-submenu').classList.toggle('hidden'); }
-        function toggleDrawer(open) { if(open) document.getElementById('orders-drawer').classList.add('open'); else document.getElementById('orders-drawer').classList.remove('open'); }
-
-        function addNewRequest(type) {
-            let details = ""; let prefix = ""; let totalPrice = 0;
-            if (type === 'restaurant') {
-                let items = []; for (const [n, q] of Object.entries(cart)) { items.push(`${n} (${q})`); totalPrice += FOOD_MENU.find(f=>f.name===n).price * q; }
-                details = items.join('، '); prefix = "🍔 طلب مطعم: ";
-            }
-
-            // توليد آي دي فريد للطلب عشان تتابعه في الـ Debug Console
-            const orderId = 'ord-' + Math.floor(Math.random() * 1000);
-            const newOrder = { id: orderId, text: prefix + details, status: 'waiting' };
-
-            let localOrders = JSON.parse(localStorage.getItem('my_orders') || '[]');
-            localOrders.push(newOrder); localStorage.setItem('my_orders', JSON.stringify(localOrders));
-            renderLocalOrders();
-
-            // تنبيه يظهر المعطيات عشان تنسخها وتدخلها لوحة بوشر
-            alert("تم حفظ طلبك محلياً بـ ID: " + orderId + "\nانسخ البيانات وزقها من بوشر للأدمن!");
-            if(type === 'restaurant') cart = {};
-            goHome(); toggleDrawer(true);
-        }
-
-        function renderLocalOrders() {
-            const waitingBox = document.getElementById('list-waiting'); const progressBox = document.getElementById('list-progress'); const doneBox = document.getElementById('list-done');
-            waitingBox.innerHTML = ''; progressBox.innerHTML = ''; doneBox.innerHTML = '';
-            let localOrders = JSON.parse(localStorage.getItem('my_orders') || '[]');
-            localOrders.forEach(order => {
-                const html = `<div class="drawer-order-item"><strong>${order.text} [${order.id}]</strong></div>`;
-                if(order.status === 'waiting') waitingBox.innerHTML += html;
-                else if(order.status === 'progress') progressBox.innerHTML += html;
-                else if(order.status === 'done') doneBox.innerHTML += html;
-            });
-        }
-        function sendComplaint() { window.location.href = "https://wa.me/+2001016944198?text=" + encodeURIComponent("شكوى من غرفة " + localStorage.getItem('guest_room')); }
     </script>
 </body>
 </html>

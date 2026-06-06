@@ -1,35 +1,29 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <style>
-        body { background: #0b0e14; color: #fff; font-family: sans-serif; }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid #7000ff; /* Neon Purple */
-            padding: 20px;
-            margin: 15px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 15px rgba(255, 0, 255, 0.2);
-        }
-        .btn-neon {
-            background: linear-gradient(90deg, #00d4ff, #7000ff);
-            border: none;
-            padding: 15px;
-            width: 100%;
-            border-radius: 10px;
-            color: white;
-            font-weight: bold;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <title>بوابة النزيل</title>
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
 </head>
 <body>
-    <div id="login-section" class="glass-card">
-        <h3>تسجيل الدخول</h3>
-        <input type="text" id="name" placeholder="الاسم الثلاثي">
-        <input type="text" id="room" placeholder="رقم الغرفة">
-        <input type="text" id="phone" placeholder="رقم الموبايل">
-        <button class="btn-neon" onclick="saveData()">حفظ البيانات</button>
-    </div>
+    <h1>بوابة الخدمات</h1>
+    <button onclick="sendOrder('بيتزا')">طلب بيتزا</button>
+    <button onclick="sendOrder('صيانة')">طلب صيانة</button>
+
+    <script>
+        // مفتاح الربط الخاص بك
+        const ably = new Ably.Realtime('0xzGaw.lE_D6w:BWnvUIkCtSy0pxAJxzno5KXIXyrP2WhBdfzMJS08ne4');
+        const channel = ably.channels.get('hotel-channel');
+
+        function sendOrder(service) {
+            channel.publish('new-order', {
+                name: "كريم",
+                room: "100",
+                service: service,
+                time: new Date().toLocaleTimeString()
+            });
+            alert("تم إرسال طلبك للمشرف!");
+        }
+    </script>
 </body>
 </html>

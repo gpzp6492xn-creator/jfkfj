@@ -2,39 +2,70 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>خدمات فندق بيتزا سلايس</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فندق 5 نجوم - خدمات النزلاء</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f8f9fa; padding: 20px; }
-        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .btn { display: block; width: 100%; padding: 15px; border: none; border-radius: 10px; background: #007bff; color: white; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        :root { --gold: #c5a059; --dark: #1a1a1a; --white: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--dark); color: var(--white); margin: 0; padding: 20px; }
+        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid var(--gold); background: transparent; color: white; box-sizing: border-box; }
+        .category { background: var(--gold); color: black; padding: 20px; border-radius: 15px; margin-bottom: 15px; text-align: center; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .category:hover { transform: scale(1.02); }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <h2>مرحباً بك في فندقنا</h2>
-    <div class="card">
-        <h3>قيم المكان</h3>
-        <input type="text" id="guest-room" placeholder="رقم الغرفة">
+
+    <div id="profile-section" class="glass">
+        <h3>بيانات الإقامة</h3>
+        <input type="text" id="name" placeholder="الاسم الثلاثي">
+        <input type="text" id="room" placeholder="رقم الغرفة">
+        <input type="text" id="phone" placeholder="رقم الموبايل">
+        <button class="category" style="width:100%" onclick="saveProfile()">حفظ البيانات</button>
     </div>
 
-    <div class="card">
-        <h3>خدمات الصيانة والطلبات</h3>
-        <button class="btn" onclick="sendRequest('خدمات الصيانة المائية')">طلب صيانة مائية</button>
-        <button class="btn" onclick="sendRequest('خدمات مرافق الغاز')">طلب فحص مرافق الغاز</button>
-        <button class="btn" onclick="sendRequest('الدعم الكهربائي وتكييف الهواء')">طلب دعم تكييف وكهرباء</button>
-        <button class="btn" onclick="sendRequest('طلب بيتزا')">طلب وجبة بيتزا</button>
+    <div id="services-section" class="hidden">
+        <div class="category" onclick="openMenu('restaurant')">قسم المطعم (قائمة الطعام)</div>
+        <div class="category" onclick="openMenu('maintenance')">قسم الصيانة (سباكة/كهرباء/تكييف)</div>
+        <div class="category" onclick="openMenu('housekeeping')">قسم التنظيف</div>
+        <div class="category" onclick="openRating()">قيم المكان</div>
+    </div>
+
+    <div id="rating-section" class="hidden glass">
+        <h3>كيف كانت تجربتك؟</h3>
+        <button class="category" onclick="handleRating('positive')">إيجابي 😊</button>
+        <button class="category" style="background:#dc3545;" onclick="handleRating('negative')">سلبي 😞</button>
     </div>
 
     <script>
         const ably = new Ably.Realtime('0xzGaw.lE_D6w:BWnvUIkCtSy0pxAJxzno5KXIXyrP2WhBdfzMJS08ne4');
         const channel = ably.channels.get('hotel-service');
 
-        function sendRequest(service) {
-            const room = document.getElementById('guest-room').value;
-            if(!room) { alert('من فضلك حدد رقم الغرفة'); return; }
-            channel.publish('new-order', { service: service, room: room });
-            alert('تم إرسال طلبك بنجاح!');
+        window.onload = () => {
+            if(localStorage.getItem('name')) {
+                document.getElementById('profile-section').classList.add('hidden');
+                document.getElementById('services-section').classList.remove('hidden');
+            }
+        };
+
+        function saveProfile() {
+            localStorage.setItem('name', document.getElementById('name').value);
+            localStorage.setItem('room', document.getElementById('room').value);
+            localStorage.setItem('phone', document.getElementById('phone').value);
+            location.reload();
         }
+
+        function handleRating(type) {
+            if(type === 'positive') { alert("شكراً لتقييمك الرائع!"); }
+            else {
+                const msg = `شكوى من ${localStorage.getItem('name')}، غرفة ${localStorage.getItem('room')}. تفاصيل الشكوى:`;
+                window.open(`https://wa.me/201000000000?text=${encodeURIComponent(msg)}`, '_blank');
+            }
+        }
+
+        // ملاحظة: لطلب 30 صنف، يمكنك عمل مصفوفة (Array) داخل دالة openMenu('restaurant') 
+        // لعرض قائمة طويلة باستخدام الـ DOM
     </script>
 </body>
 </html>

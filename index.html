@@ -2,35 +2,42 @@
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>بوابة النزيل الذكية</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة النزيل - فندق 5 نجوم</title>
     <style>
         :root { --gold: #c5a059; --bg: #0b0e14; }
-        body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 15px; }
-        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 2px solid var(--gold); }
-        .btn-order { background: var(--gold); color: black; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .card { background: rgba(255,255,255,0.05); border: 1px solid #333; padding: 20px; margin: 10px 0; border-radius: 15px; text-align: center; cursor: pointer; }
+        body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 20px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 20px 0; border-bottom: 2px solid var(--gold); margin-bottom: 20px; }
+        .orders-btn { background: var(--gold); color: #000; padding: 15px 25px; border-radius: 12px; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+        
+        /* البطاقات العملاقة */
+        .card { background: rgba(255,255,255,0.05); border: 2px solid #333; padding: 40px; margin: 20px 0; border-radius: 25px; text-align: center; font-size: 2rem; cursor: pointer; transition: 0.3s; }
+        .card:hover { border-color: var(--gold); transform: scale(1.02); }
+        
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 25px; border-bottom: 1px solid #222; font-size: 1.6rem; }
+        .btn-qty { padding: 15px 30px; background: var(--gold); border: none; border-radius: 10px; font-size: 1.5rem; cursor: pointer; }
+        
         .page { display: none; } .active { display: block; }
-        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #222; }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
-        <div>أهلاً: كريم</div>
-        <div class="btn-order" onclick="show('orders')">📦 طلباتي</div>
+        <div style="font-size: 1.5rem;">أهلاً بك: <b>كريم محمد السيد</b></div>
+        <div class="orders-btn" onclick="show('orders')">📦 طلباتي</div>
     </div>
 
     <div id="main" class="page active">
         <div class="card" onclick="show('restaurant')">🍔 المطعم الفاخر</div>
-        <div class="card" onclick="show('maintenance')">🛠️ الصيانة</div>
-        <div class="card" onclick="show('cleaning')">🧹 التنظيف</div>
+        <div class="card" onclick="show('maintenance')">🛠️ قسم الصيانة</div>
+        <div class="card" onclick="show('cleaning')">🧹 خدمة التنظيف</div>
         <div class="card" style="border-color: #4CAF50" onclick="window.location.href='https://maps.app.goo.gl/c6vcYv1mosc7Vkmr6?g_st=ipc'">⭐ تقييم إيجابي</div>
         <div class="card" style="border-color: #f44336" onclick="window.location.href='https://wa.me/201274847794'">⚠️ تقييم سلبي</div>
     </div>
 
     <div id="restaurant" class="page">
-        <div id="menu-content"></div>
-        <div class="card" style="background:var(--gold); color:black" onclick="confirmOrder()">تأكيد الطلب | الإجمالي: <span id="total">0</span> ج.م</div>
+        <div id="menu-list"></div>
+        <div class="card" style="background:var(--gold); color:#000" onclick="alert('تم إرسال الطلب بنجاح!')">تأكيد الطلب | الإجمالي: <span id="total">0</span> ج.م</div>
         <div class="card" onclick="show('main')">🔙 عودة</div>
     </div>
 
@@ -49,26 +56,29 @@
     </div>
 
     <div id="orders" class="page">
-        <h3>سجل الطلبات</h3>
-        <div id="order-log">لا توجد طلبات</div>
+        <h3>سجل طلباتك</h3>
+        <div id="order-log" style="font-size: 1.5rem;">لا توجد طلبات</div>
         <div class="card" onclick="show('main')">🔙 عودة</div>
     </div>
 
     <script>
-        // مصفوفة الأصناف كاملة (تقدر تزود لـ 60 براحتك)
+        // الأصناف من المنيو
         const menu = [
-            {n: "ساندوتش شاورما دجاج", p: 75}, {n: "وجبة شاورما عربي", p: 130}, {n: "بيتزا مارجريتا", p: 120},
-            {n: "كفتة مشوية", p: 180}, {n: "كباب ضاني", p: 250}, {n: "ريش ضاني", p: 280}
+            {n: "ساندوتش شاورما دجاج", p: 75}, {n: "شاورما سوري وسط", p: 85}, {n: "وجبة شاورما عربي", p: 130},
+            {n: "بيتزا مارجريتا", p: 120}, {n: "كفتة مشوية", p: 180}, {n: "كباب ضاني", p: 250},
+            {n: "ريش ضاني", p: 280}, {n: "طاجن ملوخية", p: 50}, {n: "بطاطس محمرة", p: 40}
         ];
         
         let cart = {};
-        let list = document.getElementById('menu-content');
+        let list = document.getElementById('menu-list');
         
         menu.forEach(i => {
             list.innerHTML += `<div class="menu-item">${i.n} (${i.p}ج) 
-                <button onclick="update('${i.n}',${i.p},1)">+</button>
-                <span id="q-${i.n}">0</span>
-                <button onclick="update('${i.n}',${i.p},-1)">-</button></div>`;
+                <div>
+                    <button class="btn-qty" onclick="update('${i.n}',${i.p},1)">+</button>
+                    <span id="q-${i.n}" style="margin:0 20px">0</span>
+                    <button class="btn-qty" onclick="update('${i.n}',${i.p},-1)">-</button>
+                </div></div>`;
         });
 
         function update(n, p, d) {
@@ -79,14 +89,8 @@
         }
 
         function notify(type) {
-            document.getElementById('order-log').innerHTML += `<div class="card">${type} <small>(قيد الانتظار)</small></div>`;
-            alert("تم إرسال طلب " + type); show('main');
-        }
-
-        function confirmOrder() {
-            let tot = document.getElementById('total').innerText;
-            if(tot == "0") return alert("المنيو فاضي!");
-            alert("تم تأكيد الطلب بقيمة " + tot + " ج.م"); show('main');
+            document.getElementById('order-log').innerHTML += `<div class="card">${type} <br><small style="color:var(--gold)">قيد الانتظار</small></div>`;
+            alert("تم إرسال طلب " + type + " بنجاح!"); show('main');
         }
 
         function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }

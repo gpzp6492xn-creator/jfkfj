@@ -3,66 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فندق بيتزا سلايس | 5 نجوم</title>
-    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <title>خدمات فندق بيتزا سلايس</title>
     <style>
-        body { margin: 0; background: linear-gradient(135deg, #0f0f1a, #2c2c54); color: #e0e0e0; font-family: 'Segoe UI', sans-serif; min-height: 100vh; padding-bottom: 30px; }
+        body { margin: 0; background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; font-family: 'Segoe UI', sans-serif; min-height: 100vh; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #c5a059; padding-bottom: 15px; margin-bottom: 20px; }
+        .user-name { font-size: 1.2rem; color: #c5a059; font-weight: bold; }
         
-        /* شريط علوي أنيق */
-        .header { display: flex; justify-content: space-between; padding: 20px; align-items: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid #c5a059; }
-        .user-info { font-weight: bold; color: #c5a059; }
-        .btn-orders { background: #c5a059; border: none; padding: 8px 15px; border-radius: 6px; color: white; cursor: pointer; }
-
-        /* مستطيلات الخدمات */
-        .glass-card { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; margin: 15px; padding: 25px; transition: 0.3s; cursor: pointer; text-align: center; font-size: 1.2rem; }
-        .glass-card:hover { background: rgba(197, 160, 89, 0.2); border-color: #c5a059; }
-        
-        /* فورم التسجيل */
-        .login-box { padding: 40px; }
-        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #555; background: #1a1a2e; color: white; box-sizing: border-box; }
+        /* تصميم المستطيلات العريضة */
+        .section-container { margin-bottom: 15px; }
+        .section-header { background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 12px; border: 1px solid #c5a059; cursor: pointer; text-align: center; font-size: 1.1rem; }
+        .section-content { display: none; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 0 0 12px 12px; margin-top: -5px; }
     </style>
 </head>
 <body>
 
-    <div id="app" style="display:none;">
-        <div class="header">
-            <div>
-                <span id="display-name"></span> | غرفة <span id="display-room"></span>
-            </div>
-            <button class="btn-orders" onclick="showOrders()">طلباتي</button>
-        </div>
-
-        <div class="glass-card" onclick="alert('فتح قسم المطعم...')">🍕 قسم المطعم (قائمة طعام فاخرة)</div>
-        <div class="glass-card" onclick="alert('فتح قسم الصيانة...')">🛠️ قسم الصيانة (سباكة/كهرباء/غاز)</div>
-        <div class="glass-card" onclick="alert('فتح قسم التنظيف...')">🧹 قسم التنظيف</div>
-        <div class="glass-card" onclick="alert('فتح التقييم...')">⭐ تقييم التجربة</div>
+    <div class="header">
+        <div class="user-name">أهلاً، <span id="user-display"></span> | غرفة <span id="room-display"></span></div>
+        <button onclick="alert('طلباتي: قيد الانتظار...')" style="background:#c5a059; border:none; padding:10px; border-radius:5px;">طلباتي</button>
     </div>
 
-    <div id="login" class="login-box">
-        <h2 style="color:#c5a059; text-align:center;">فندق بيتزا سلايس</h2>
-        <input type="text" id="name" placeholder="الاسم الثلاثي">
-        <input type="text" id="room" placeholder="رقم الغرفة">
-        <input type="text" id="phone" placeholder="رقم الموبايل">
-        <button class="glass-card" style="width:100%;" onclick="save()">دخول لخدمات الفندق</button>
+    <div class="section-container">
+        <div class="section-header" onclick="toggleSection('rest-content')">🍕 قسم المطعم (30+ صنف)</div>
+        <div id="rest-content" class="section-content">
+            <p>قائمة الطعام المتاحة...</p>
+            </div>
+    </div>
+
+    <div class="section-container">
+        <div class="section-header" onclick="toggleSection('clean-content')">🧹 قسم التنظيف</div>
+        <div id="clean-content" class="section-content">
+            <button onclick="alert('تم طلب خدمة التنظيف')">طلب تنظيف الغرفة</button>
+        </div>
     </div>
 
     <script>
-        function save() {
-            localStorage.setItem('name', document.getElementById('name').value);
-            localStorage.setItem('room', document.getElementById('room').value);
-            location.reload();
-        }
-        
-        // التحقق من وجود بيانات
-        if(localStorage.getItem('name')) {
-            document.getElementById('login').style.display = 'none';
-            document.getElementById('app').style.display = 'block';
-            document.getElementById('display-name').innerText = localStorage.getItem('name');
-            document.getElementById('display-room').innerText = localStorage.getItem('room');
-        }
+        // إظهار بيانات العميل
+        document.getElementById('user-display').innerText = localStorage.getItem('name') || "نزيل";
+        document.getElementById('room-display').innerText = localStorage.getItem('room') || "غير محدد";
 
-        function showOrders() {
-            alert("طلباتك:\nقيد الانتظار: 0\nقيد التنفيذ: 0\nتم التنفيذ: 0");
+        function toggleSection(id) {
+            const content = document.getElementById(id);
+            content.style.display = (content.style.display === 'block') ? 'none' : 'block';
         }
     </script>
 </body>

@@ -2,48 +2,80 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>خدمات فندق بيتزا سلايس</title>
+    <title>بيتزا سلايس | الفضاء</title>
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
-        body { margin: 0; background: linear-gradient(135deg, #1a1a2e, #16213e); color: #fff; font-family: 'Segoe UI', sans-serif; min-height: 100vh; padding: 20px; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #c5a059; padding-bottom: 15px; margin-bottom: 20px; }
-        .user-name { font-size: 1.2rem; color: #c5a059; font-weight: bold; }
-        
-        /* تصميم المستطيلات العريضة */
-        .section-container { margin-bottom: 15px; }
-        .section-header { background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 12px; border: 1px solid #c5a059; cursor: pointer; text-align: center; font-size: 1.1rem; }
-        .section-content { display: none; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 0 0 12px 12px; margin-top: -5px; }
+        /* سحر الفضاء */
+        body {
+            margin: 0;
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+            color: #00f0ff; /* لون النيون الأزرق */
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header { background: rgba(0,0,0,0.5); padding: 15px; border-radius: 15px; border: 1px solid #00f0ff; display: flex; justify-content: space-between; margin-bottom: 20px; }
+
+        .space-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid #7000ff; /* نيون بنفسجي */
+            padding: 25px;
+            margin: 15px 0;
+            border-radius: 20px;
+            text-align: center;
+            font-size: 1.3rem;
+            box-shadow: 0 0 15px rgba(112, 0, 255, 0.3);
+            cursor: pointer;
+            transition: 0.4s;
+        }
+
+        .space-card:hover { transform: scale(1.05); box-shadow: 0 0 30px #00f0ff; }
+
+        input { background: rgba(0,0,0,0.6); border: 1px solid #00f0ff; color: white; padding: 12px; width: 100%; border-radius: 10px; margin: 5px 0; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="user-name">أهلاً، <span id="user-display"></span> | غرفة <span id="room-display"></span></div>
-        <button onclick="alert('طلباتي: قيد الانتظار...')" style="background:#c5a059; border:none; padding:10px; border-radius:5px;">طلباتي</button>
+    <div id="login" class="header">
+        <h3>تسجيل النزيل الفضائي</h3>
+        <input type="text" id="name" placeholder="الاسم">
+        <input type="text" id="room" placeholder="الغرفة">
+        <button onclick="save()">دخول</button>
     </div>
 
-    <div class="section-container">
-        <div class="section-header" onclick="toggleSection('rest-content')">🍕 قسم المطعم (30+ صنف)</div>
-        <div id="rest-content" class="section-content">
-            <p>قائمة الطعام المتاحة...</p>
-            </div>
-    </div>
-
-    <div class="section-container">
-        <div class="section-header" onclick="toggleSection('clean-content')">🧹 قسم التنظيف</div>
-        <div id="clean-content" class="section-content">
-            <button onclick="alert('تم طلب خدمة التنظيف')">طلب تنظيف الغرفة</button>
+    <div id="app" style="display:none;">
+        <div class="header">
+            <span id="u-name"></span> | غرفة <span id="u-room"></span>
+            <button onclick="alert('جارٍ فتح لوحة الطلبات الفضائية...')">طلباتي</button>
         </div>
+
+        <div class="space-card" onclick="sendOrder('المطعم')">🚀 قسم المطعم</div>
+        <div class="space-card" onclick="sendOrder('الصيانة')">🛰️ قسم الصيانة</div>
+        <div class="space-card" onclick="sendOrder('التنظيف')">🛸 قسم التنظيف</div>
     </div>
 
     <script>
-        // إظهار بيانات العميل
-        document.getElementById('user-display').innerText = localStorage.getItem('name') || "نزيل";
-        document.getElementById('room-display').innerText = localStorage.getItem('room') || "غير محدد";
+        const ably = new Ably.Realtime('0xzGaw.lE_D6w:BWnvUIkCtSy0pxAJxzno5KXIXyrP2WhBdfzMJS08ne4');
+        const channel = ably.channels.get('space-hotel');
 
-        function toggleSection(id) {
-            const content = document.getElementById(id);
-            content.style.display = (content.style.display === 'block') ? 'none' : 'block';
+        function save() {
+            localStorage.setItem('name', document.getElementById('name').value);
+            localStorage.setItem('room', document.getElementById('room').value);
+            location.reload();
+        }
+
+        if(localStorage.getItem('name')) {
+            document.getElementById('login').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('u-name').innerText = localStorage.getItem('name');
+            document.getElementById('u-room').innerText = localStorage.getItem('room');
+        }
+
+        function sendOrder(s) {
+            channel.publish('new-order', { service: s, user: localStorage.getItem('name') });
+            alert('تم إرسال الطلب عبر المجرة!');
         }
     </script>
 </body>

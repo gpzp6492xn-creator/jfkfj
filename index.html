@@ -2,57 +2,73 @@
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>فندق 5 نجوم - منيو النزيل</title>
+    <title>فندق الفخامة | قائمة الطعام</title>
     <style>
         :root { --gold: #c5a059; --bg: #0b0e14; }
-        body { background: var(--bg); color: white; font-family: 'Cairo', sans-serif; margin: 0; padding: 15px; }
+        body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 15px; }
         
-        /* الخطوط الكبيرة والبطاقات المريحة */
-        .card { background: rgba(255,255,255,0.05); border: 1px solid #333; padding: 25px; margin: 10px 0; border-radius: 15px; font-size: 1.4rem; }
-        .item { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid #222; font-size: 1.3rem; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 2px solid var(--gold); }
+        .card { background: rgba(255,255,255,0.05); border: 1px solid #333; padding: 20px; margin: 10px 0; border-radius: 15px; text-align: center; cursor: pointer; }
+        .card:hover { border-color: var(--gold); }
         
-        .section-title { color: var(--gold); font-size: 1.8rem; margin: 20px 0 10px; border-bottom: 2px solid var(--gold); }
-        .btn-qty { padding: 10px 20px; background: var(--gold); border: none; border-radius: 8px; font-size: 1.2rem; cursor: pointer; }
+        /* تصميم المنيو الجديد */
+        .category { color: var(--gold); font-size: 1.6rem; margin: 20px 0 10px; font-weight: bold; border-right: 4px solid var(--gold); padding-right: 10px; }
+        .menu-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #222; font-size: 1.2rem; }
         
         .page { display: none; } .active { display: block; }
+        .btn-add { background: var(--gold); border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="restaurant" class="page active">
-        <h2 style="text-align:center">ركن الشاورما</h2>
-        <div id="menu-items"></div>
-        <div class="card" style="background:var(--gold); color:black; font-weight:bold" onclick="alert('تم تأكيد طلبك بقيمة: ' + document.getElementById('total').innerText)">تأكيد الطلب | الإجمالي: <span id="total">0</span> ج.م</div>
+    <div class="top-bar">
+        <div>أهلاً: <span id="u-name">كريم</span></div>
+        <div onclick="show('orders')" style="background:var(--gold); padding:5px 10px; border-radius:5px; cursor:pointer">📦 طلباتي</div>
+    </div>
+
+    <div id="main" class="page active">
+        <div class="card" onclick="show('restaurant')">🍔 المطعم الفاخر</div>
+        <div class="card" onclick="show('maintenance')">🛠️ الصيانة</div>
+        <div class="card" onclick="show('cleaning')">🧹 التنظيف</div>
+        <div class="card" style="border-color: #4CAF50" onclick="window.location.href='http://googleusercontent.com/maps.google.com/4'">⭐ تقييم إيجابي</div>
+        <div class="card" style="border-color: #f44336" onclick="window.location.href='https://wa.me/201274847794'">⚠️ تقييم سلبي</div>
+    </div>
+
+    <div id="restaurant" class="page">
+        <div class="category">ركن الشاورما</div>
+        <div id="menu-list"></div>
+        <div class="card" style="background:var(--gold); color:black; font-weight:bold" onclick="alert('تم إرسال الطلب')">تأكيد الطلب | الإجمالي: <span id="total">0</span> ج.م</div>
+        <div class="card" onclick="show('main')">🔙 عودة</div>
     </div>
 
     <script>
-        const fullMenu = [
+        const menuData = [
             {n: "ساندوتش شاورما دجاج", p: 75}, {n: "شاورما سوري وسط", p: 85}, {n: "وجبة شاورما عربي", p: 130},
-            {n: "بيتزا مارجريتا", p: 120}, {n: "باستا وايت صوص", p: 140}, {n: "كفتة مشوية", p: 180},
-            {n: "كباب ضاني", p: 250}, {n: "ريش ضاني", p: 280}, {n: "طاجن ملوخية", p: 50},
-            {n: "بطاطس محمرة", p: 40}, {n: "سلطة طحينة", p: 20}, {n: "بيبسي", p: 25}
-            // ضفت لك أمثلة، تقدر تكمل لـ 60 بنفس الطريقة بالظبط
+            {n: "كفتة مشوية", p: 180}, {n: "كباب ضاني", p: 250}, {n: "ريش ضاني", p: 280}
         ];
 
         let cart = {};
-        let list = document.getElementById('menu-items');
-        fullMenu.forEach(i => {
-            list.innerHTML += `<div class="item">
-                <span>${i.n} - ${i.p}ج</span>
+        let list = document.getElementById('menu-list');
+        
+        menuData.forEach(i => {
+            list.innerHTML += `<div class="menu-item">
+                <span>${i.n} (${i.p}ج)</span>
                 <div>
-                    <button class="btn-qty" onclick="change('${i.n}',${i.p},1)">+</button>
-                    <span id="q-${i.n}" style="margin:0 15px">0</span>
-                    <button class="btn-qty" onclick="change('${i.n}',${i.p},-1)">-</button>
+                    <button class="btn-add" onclick="update('${i.n}',${i.p},1)">+</button>
+                    <span id="q-${i.n}" style="margin:0 10px">0</span>
+                    <button class="btn-add" onclick="update('${i.n}',${i.p},-1)">-</button>
                 </div>
             </div>`;
         });
 
-        function change(n, p, d) {
+        function update(n, p, d) {
             cart[n] = Math.max(0, (cart[n] || 0) + d);
             document.getElementById('q-'+n).innerText = cart[n];
-            let tot = 0; fullMenu.forEach(i => tot += (cart[i.n] || 0) * i.p);
-            document.getElementById('total').innerText = tot;
+            let total = 0; menuData.forEach(i => total += (cart[i.n] || 0) * i.p);
+            document.getElementById('total').innerText = total;
         }
+
+        function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     </script>
 </body>
 </html>

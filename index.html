@@ -1,28 +1,23 @@
-// أضف هذه المتغيرات في بداية الـ script
-const pusher = new Pusher('YOUR_PUSHER_KEY', { cluster: 'YOUR_CLUSTER' });
-const channel = pusher.subscribe('hotel-channel');
+<script src="https://js.pusher.com/8.0.1/pusher.min.js"></script>
+<script>
+    const pusher = new Pusher('YOUR_KEY', { cluster: 'YOUR_CLUSTER' });
+    const channel = pusher.subscribe('hotel-channel');
 
-// دالة إرسال الطلبات للأدمن
-function sendOrderToAdmin(orderData) {
-    // نرسل الطلب للأدمن عبر Pusher
-    fetch('https://api.pusher.com/...', { /* كود الإرسال */ });
-    
-    // حفظ الطلب محلياً في "طلباتي"
-    let myOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
-    myOrders.push({ ...orderData, status: 'قيد الانتظار' });
-    localStorage.setItem('myOrders', JSON.stringify(myOrders));
-}
-
-// دالة فتح لوحة طلباتي
-function showMyOrders() {
-    const orders = JSON.parse(localStorage.getItem('myOrders') || '[]');
-    let html = "<h3>طلباتي</h3>";
-    orders.forEach(o => {
-        html += `<div class="item-card">
-            <span>${o.service}</span>
-            <span style="color:var(--neon-pink)">${o.status}</span>
-        </div>`;
-    });
-    // عرض الـ html في مكان مناسب في صفحتك
-    alert(html); 
-}
+    function sendOrder(serviceName) {
+        const orderData = { 
+            name: localStorage.getItem('guest_name'), 
+            room: localStorage.getItem('guest_room'), 
+            service: serviceName, 
+            status: 'قيد الانتظار' 
+        };
+        
+        // إرسال للأدمن
+        channel.trigger('client-new-order', orderData);
+        
+        // حفظ محلياً
+        let myOrders = JSON.parse(localStorage.getItem('myOrders') || '[]');
+        myOrders.push(orderData);
+        localStorage.setItem('myOrders', JSON.stringify(myOrders));
+        alert('تم إرسال الطلب!');
+    }
+</script>

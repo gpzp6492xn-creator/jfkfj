@@ -1,17 +1,61 @@
-<table style="width:100%; border-collapse:collapse; margin-top:20px; font-size: 1.2rem;">
-    <thead>
-        <tr style="border-bottom: 2px solid var(--gold);">
-            <th>الطلب</th><th>الحالة</th>
-        </tr>
-    </thead>
-    <tbody id="order-table-body">
-        </tbody>
-</table>
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة النزيل - فندق 7 نجوم</title>
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <style>
+        :root { --gold: #c5a059; --bg: #05070A; }
+        body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 20px; }
+        
+        /* تصميم الأزرار المريحة والضخمة */
+        .btn-big { background: #1a1a2e; border: 2px solid var(--gold); padding: 40px; margin: 20px 0; border-radius: 20px; text-align: center; font-size: 1.8rem; cursor: pointer; color: white; display: block; text-decoration: none; }
+        .page { display: none; } .active { display: block; }
+        
+        /* الجدول الاحترافي للطلبات */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; color: white; }
+        th, td { padding: 25px; border-bottom: 1px solid #333; text-align: center; font-size: 1.4rem; }
+        .status-badge { padding: 10px; border-radius: 8px; font-weight: bold; }
+    </style>
+</head>
+<body>
 
-<script>
-    // عند استقبال تحديث من الأدمن، بنغير الحالة لحظياً
-    restCh.subscribe('update', (msg) => {
-        let row = document.getElementById('row-' + msg.data.id);
-        row.cells[1].innerText = msg.data.newStatus;
-    });
-</script>
+    <div style="text-align:center; padding: 20px; border-bottom: 2px solid var(--gold);">
+        <h1>مرحباً كريم - غرفة 15</h1>
+        <div onclick="show('orders')" style="background:var(--gold); padding:20px; border-radius:15px; font-size:1.5rem;">📦 طلباتي (جدول الطلبات)</div>
+    </div>
+
+    <div id="main" class="page active">
+        <div class="btn-big" onclick="show('restaurant')">🍔 المطعم الفاخر</div>
+        <div class="btn-big" onclick="show('maintenance')">🛠️ الصيانة</div>
+        <div class="btn-big" onclick="show('cleaning')">🧹 التنظيف</div>
+    </div>
+
+    <div id="orders" class="page">
+        <table>
+            <thead><tr><th>الطلب</th><th>الحالة</th></tr></thead>
+            <tbody id="order-body"></tbody>
+        </table>
+        <div class="btn-big" onclick="show('main')">🔙 عودة</div>
+    </div>
+
+    <script>
+        // الربط اللحظي بالقنوات
+        const ably = new Ably.Realtime('T96fVQ.sgIqhw:iEh8DOlHnT9xY-tTSLUGK5NTVPKpYeiqmq9vAY6NCS0');
+        const channel = ably.channels.get('hotel-orders');
+
+        // تحديث الجدول لحظياً
+        channel.subscribe('update', (msg) => {
+            let row = document.getElementById(msg.data.id);
+            if(row) row.cells[1].innerHTML = `<span class="status-badge">${msg.data.status}</span>`;
+            else {
+                document.getElementById('order-body').innerHTML += 
+                `<tr id="${msg.data.id}"><td>${msg.data.item}</td><td>${msg.data.status}</td></tr>`;
+            }
+        });
+
+        function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    </script>
+</body>
+</html>

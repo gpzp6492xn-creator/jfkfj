@@ -9,8 +9,8 @@
         body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 25px; }
         .btn-big { background: #1a1a2e; border: 2px solid var(--gold); padding: 40px; margin: 20px 0; border-radius: 20px; text-align: center; font-size: 1.8rem; cursor: pointer; color: white; display: block; }
         .page { display: none; } .active { display: block; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; color: white; }
-        th, td { padding: 30px; border-bottom: 2px solid #333; text-align: center; font-size: 1.6rem; }
+        .item-card { display: flex; justify-content: space-between; align-items: center; padding: 30px; border-bottom: 2px solid #333; font-size: 1.6rem; }
+        .qty-btn { padding: 20px 40px; background: var(--gold); border: none; border-radius: 10px; font-size: 1.6rem; cursor: pointer; margin: 0 10px; }
     </style>
 </head>
 <body>
@@ -26,29 +26,42 @@
         <div class="btn-big" onclick="show('cleaning')">🧹 التنظيف</div>
         <div class="btn-big" style="border-color: #4CAF50" onclick="window.location.href='https://maps.app.goo.gl/c6vcYv1mosc7Vkmr6?g_st=ipc'">⭐ تقييم إيجابي</div>
         <div class="btn-big" style="border-color: #f44336" onclick="rateNeg()">⚠️ تقييم سلبي</div>
+    </div>
+
+    <div id="restaurant" class="page">
+        <div id="menu-items">
+            <div class="item-card">بيتزا مارجريتا (120ج) <button class="qty-btn" onclick="add('بيتزا')">+</button></div>
+            <div class="item-card">مشويات ميكس (350ج) <button class="qty-btn" onclick="add('مشويات')">+</button></div>
+            <div class="item-card">شاورما دجاج (85ج) <button class="qty-btn" onclick="add('شاورما')">+</button></div>
+        </div>
+        <div class="btn-big" onclick="confirmOrder()">✅ تأكيد الطلب وإرساله</div>
+        <div class="btn-big" onclick="show('main')">🔙 عودة</div>
+    </div>
+
+    <div id="maintenance" class="page">
+        <div class="btn-big" onclick="send('صيانة', 'كهرباء')">💡 كهرباء</div>
+        <div class="btn-big" onclick="send('صيانة', 'تكييف')">❄️ تكييف</div>
+        <div class="btn-big" onclick="send('صيانة', 'سباكة')">🚰 سباكة</div>
+        <div class="btn-big" onclick="show('main')">🔙 عودة</div>
+    </div>
+
+    <div id="cleaning" class="page">
+        <div class="btn-big" onclick="send('تنظيف', 'تنظيف عادي')">🧹 تنظيف عادي</div>
+        <div class="btn-big" onclick="send('تنظيف', 'تنظيف عميق')">🧼 تنظيف عميق</div>
         <div class="btn-big" onclick="show('main')">🔙 عودة</div>
     </div>
 
     <div id="orders" class="page">
-        <table>
-            <thead><tr><th>الطلب</th><th>الحالة</th></tr></thead>
-            <tbody id="order-body"></tbody>
-        </table>
+        <div id="order-body" style="font-size: 1.6rem; text-align: center;">لا يوجد طلبات حالياً</div>
         <div class="btn-big" onclick="show('main')">🔙 عودة للرئيسية</div>
     </div>
 
     <script>
-        const ably = new Ably.Realtime('T96fVQ.sgIqhw:iEh8DOlHnT9xY-tTSLUGK5NTVPKpYeiqmq9vAY6NCS0');
-        const channel = ably.channels.get('hotel-orders');
-
-        // استقبال التحديثات لحظياً
-        channel.subscribe('update', (msg) => {
-            let body = document.getElementById('order-body');
-            body.innerHTML += `<tr><td>${msg.data.item}</td><td>${msg.data.status}</td></tr>`;
-        });
-
-        function rateNeg() { window.location.href = "https://wa.me/201274847794?text=أنا النزيل كريم، غرفة 15، عندي مشكلة بخصوص مكان الإقامة."; }
         function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+        function send(type, item) { alert("تم طلب " + item + " بنجاح!"); show('main'); }
+        function add(item) { alert(item + " انضافت للسلة"); }
+        function confirmOrder() { alert("تم إرسال الطلب للمطبخ!"); show('main'); }
+        function rateNeg() { window.location.href = "https://wa.me/201274847794?text=أنا النزيل كريم، غرفة 15، عندي مشكلة."; }
     </script>
 </body>
 </html>

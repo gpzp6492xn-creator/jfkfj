@@ -2,34 +2,31 @@
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة النزيل - فندق 7 نجوم</title>
+    <title>بوابة النزيل - 7 نجوم</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
         :root { --gold: #c5a059; --bg: #05070A; }
-        body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 20px; }
-        
-        /* تصميم الأزرار المريحة والضخمة */
-        .btn-big { background: #1a1a2e; border: 2px solid var(--gold); padding: 40px; margin: 20px 0; border-radius: 20px; text-align: center; font-size: 1.8rem; cursor: pointer; color: white; display: block; text-decoration: none; }
+        body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 25px; }
+        .btn-big { background: #1a1a2e; border: 2px solid var(--gold); padding: 40px; margin: 20px 0; border-radius: 20px; text-align: center; font-size: 1.8rem; cursor: pointer; color: white; display: block; }
         .page { display: none; } .active { display: block; }
-        
-        /* الجدول الاحترافي للطلبات */
         table { width: 100%; border-collapse: collapse; margin-top: 20px; color: white; }
-        th, td { padding: 25px; border-bottom: 1px solid #333; text-align: center; font-size: 1.4rem; }
-        .status-badge { padding: 10px; border-radius: 8px; font-weight: bold; }
+        th, td { padding: 30px; border-bottom: 2px solid #333; text-align: center; font-size: 1.6rem; }
     </style>
 </head>
 <body>
 
-    <div style="text-align:center; padding: 20px; border-bottom: 2px solid var(--gold);">
-        <h1>مرحباً كريم - غرفة 15</h1>
-        <div onclick="show('orders')" style="background:var(--gold); padding:20px; border-radius:15px; font-size:1.5rem;">📦 طلباتي (جدول الطلبات)</div>
+    <div style="text-align:center; padding: 20px; border-bottom: 3px solid var(--gold);">
+        <h1>أهلاً كريم - غرفة 15</h1>
+        <div onclick="show('orders')" style="background:var(--gold); padding:20px; border-radius:15px; font-size:1.6rem; color:black; font-weight:bold;">📦 طلباتي (قيد الانتظار/التنفيذ)</div>
     </div>
 
     <div id="main" class="page active">
         <div class="btn-big" onclick="show('restaurant')">🍔 المطعم الفاخر</div>
         <div class="btn-big" onclick="show('maintenance')">🛠️ الصيانة</div>
         <div class="btn-big" onclick="show('cleaning')">🧹 التنظيف</div>
+        <div class="btn-big" style="border-color: #4CAF50" onclick="window.location.href='https://maps.app.goo.gl/c6vcYv1mosc7Vkmr6?g_st=ipc'">⭐ تقييم إيجابي</div>
+        <div class="btn-big" style="border-color: #f44336" onclick="rateNeg()">⚠️ تقييم سلبي</div>
+        <div class="btn-big" onclick="show('main')">🔙 عودة</div>
     </div>
 
     <div id="orders" class="page">
@@ -37,24 +34,20 @@
             <thead><tr><th>الطلب</th><th>الحالة</th></tr></thead>
             <tbody id="order-body"></tbody>
         </table>
-        <div class="btn-big" onclick="show('main')">🔙 عودة</div>
+        <div class="btn-big" onclick="show('main')">🔙 عودة للرئيسية</div>
     </div>
 
     <script>
-        // الربط اللحظي بالقنوات
         const ably = new Ably.Realtime('T96fVQ.sgIqhw:iEh8DOlHnT9xY-tTSLUGK5NTVPKpYeiqmq9vAY6NCS0');
         const channel = ably.channels.get('hotel-orders');
 
-        // تحديث الجدول لحظياً
+        // استقبال التحديثات لحظياً
         channel.subscribe('update', (msg) => {
-            let row = document.getElementById(msg.data.id);
-            if(row) row.cells[1].innerHTML = `<span class="status-badge">${msg.data.status}</span>`;
-            else {
-                document.getElementById('order-body').innerHTML += 
-                `<tr id="${msg.data.id}"><td>${msg.data.item}</td><td>${msg.data.status}</td></tr>`;
-            }
+            let body = document.getElementById('order-body');
+            body.innerHTML += `<tr><td>${msg.data.item}</td><td>${msg.data.status}</td></tr>`;
         });
 
+        function rateNeg() { window.location.href = "https://wa.me/201274847794?text=أنا النزيل كريم، غرفة 15، عندي مشكلة بخصوص مكان الإقامة."; }
         function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     </script>
 </body>

@@ -2,66 +2,82 @@
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>بوابة النزيل - 7 نجوم</title>
+    <title>بوابة النزيل - فندق 7 نجوم</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
         :root { --gold: #c5a059; --bg: #05070A; }
-        body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 25px; }
-        .btn-big { background: #1a1a2e; border: 2px solid var(--gold); padding: 40px; margin: 20px 0; border-radius: 20px; text-align: center; font-size: 1.8rem; cursor: pointer; color: white; display: block; }
+        body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; padding: 20px; }
+        .btn-big { background: #1a1a2e; border: 2px solid var(--gold); padding: 30px; margin: 15px 0; border-radius: 15px; font-size: 1.5rem; text-align: center; cursor: pointer; }
+        .item-row { display: flex; justify-content: space-between; padding: 20px; border-bottom: 1px solid #333; align-items: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 20px; border: 1px solid #444; text-align: center; font-size: 1.3rem; }
         .page { display: none; } .active { display: block; }
-        .item-card { display: flex; justify-content: space-between; align-items: center; padding: 30px; border-bottom: 2px solid #333; font-size: 1.6rem; }
-        .qty-btn { padding: 20px 40px; background: var(--gold); border: none; border-radius: 10px; font-size: 1.6rem; cursor: pointer; margin: 0 10px; }
     </style>
 </head>
 <body>
 
-    <div style="text-align:center; padding: 20px; border-bottom: 3px solid var(--gold);">
+    <div style="text-align:center; padding: 20px; border-bottom: 2px solid var(--gold);">
         <h1>أهلاً كريم - غرفة 15</h1>
-        <div onclick="show('orders')" style="background:var(--gold); padding:20px; border-radius:15px; font-size:1.6rem; color:black; font-weight:bold;">📦 طلباتي (قيد الانتظار/التنفيذ)</div>
+        <div class="btn-big" onclick="show('orders')" style="background:var(--gold); color:black;">📦 طلباتي (الجدول اللحظي)</div>
     </div>
 
     <div id="main" class="page active">
-        <div class="btn-big" onclick="show('restaurant')">🍔 المطعم الفاخر</div>
+        <div class="btn-big" onclick="show('restaurant')">🍔 المطعم</div>
         <div class="btn-big" onclick="show('maintenance')">🛠️ الصيانة</div>
         <div class="btn-big" onclick="show('cleaning')">🧹 التنظيف</div>
-        <div class="btn-big" style="border-color: #4CAF50" onclick="window.location.href='https://maps.app.goo.gl/c6vcYv1mosc7Vkmr6?g_st=ipc'">⭐ تقييم إيجابي</div>
-        <div class="btn-big" style="border-color: #f44336" onclick="rateNeg()">⚠️ تقييم سلبي</div>
     </div>
 
     <div id="restaurant" class="page">
-        <div id="menu-items">
-            <div class="item-card">بيتزا مارجريتا (120ج) <button class="qty-btn" onclick="add('بيتزا')">+</button></div>
-            <div class="item-card">مشويات ميكس (350ج) <button class="qty-btn" onclick="add('مشويات')">+</button></div>
-            <div class="item-card">شاورما دجاج (85ج) <button class="qty-btn" onclick="add('شاورما')">+</button></div>
-        </div>
-        <div class="btn-big" onclick="confirmOrder()">✅ تأكيد الطلب وإرساله</div>
-        <div class="btn-big" onclick="show('main')">🔙 عودة</div>
-    </div>
-
-    <div id="maintenance" class="page">
-        <div class="btn-big" onclick="send('صيانة', 'كهرباء')">💡 كهرباء</div>
-        <div class="btn-big" onclick="send('صيانة', 'تكييف')">❄️ تكييف</div>
-        <div class="btn-big" onclick="send('صيانة', 'سباكة')">🚰 سباكة</div>
-        <div class="btn-big" onclick="show('main')">🔙 عودة</div>
-    </div>
-
-    <div id="cleaning" class="page">
-        <div class="btn-big" onclick="send('تنظيف', 'تنظيف عادي')">🧹 تنظيف عادي</div>
-        <div class="btn-big" onclick="send('تنظيف', 'تنظيف عميق')">🧼 تنظيف عميق</div>
-        <div class="btn-big" onclick="show('main')">🔙 عودة</div>
+        <div id="menu-container"></div>
+        <div class="btn-big" style="background:var(--gold); color:black;" onclick="submitOrder()">تأكيد الطلب | الإجمالي: <span id="total-price">0</span> ج</div>
+        <button onclick="show('main')" style="width:100%; padding:20px;">🔙 عودة</button>
     </div>
 
     <div id="orders" class="page">
-        <div id="order-body" style="font-size: 1.6rem; text-align: center;">لا يوجد طلبات حالياً</div>
-        <div class="btn-big" onclick="show('main')">🔙 عودة للرئيسية</div>
+        <table>
+            <thead><tr><th>الطلب</th><th>الحالة</th></tr></thead>
+            <tbody id="order-table"></tbody>
+        </table>
+        <button onclick="show('main')" style="width:100%; padding:20px; margin-top:20px;">🔙 عودة للرئيسية</button>
     </div>
 
     <script>
+        const ably = new Ably.Realtime('T96fVQ.sgIqhw:iEh8DOlHnT9xY-tTSLUGK5NTVPKpYeiqmq9vAY6NCS0');
+        const channel = ably.channels.get('hotel-orders');
+
+        const menu = [{n: "بيتزا", p: 120}, {n: "شاورما", p: 85}, {n: "مشويات", p: 350}];
+        let cart = {};
+
+        // بناء المنيو
+        menu.forEach(item => {
+            document.getElementById('menu-container').innerHTML += `<div class="item-row">${item.n} (${item.p}ج) 
+                <div><button onclick="update('${item.n}', ${item.p}, 1)">+</button> <span id="q-${item.n}">0</span> <button onclick="update('${item.n}', ${item.p}, -1)">-</button></div></div>`;
+        });
+
+        function update(n, p, d) {
+            cart[n] = Math.max(0, (cart[n] || 0) + d);
+            document.getElementById('q-'+n).innerText = cart[n];
+            let tot = 0; menu.forEach(i => tot += (cart[i.n] || 0) * i.p);
+            document.getElementById('total-price').innerText = tot;
+        }
+
+        function submitOrder() {
+            let orderText = Object.keys(cart).filter(k => cart[k] > 0).map(k => k + " x" + cart[k]).join(", ");
+            channel.publish('new-order', {item: orderText, status: 'قيد الانتظار'});
+            alert("تم إرسال الطلب!"); show('orders');
+        }
+
+        channel.subscribe('new-order', (msg) => {
+            document.getElementById('order-table').innerHTML += `<tr><td>${msg.data.item}</td><td>${msg.data.status}</td></tr>`;
+        });
+        
+        // تحديث الحالة لحظي
+        channel.subscribe('update', (msg) => {
+            let row = document.getElementById('row-' + msg.data.id);
+            if(row) row.cells[1].innerText = msg.data.status;
+        });
+
         function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
-        function send(type, item) { alert("تم طلب " + item + " بنجاح!"); show('main'); }
-        function add(item) { alert(item + " انضافت للسلة"); }
-        function confirmOrder() { alert("تم إرسال الطلب للمطبخ!"); show('main'); }
-        function rateNeg() { window.location.href = "https://wa.me/201274847794?text=أنا النزيل كريم، غرفة 15، عندي مشكلة."; }
     </script>
 </body>
 </html>

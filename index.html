@@ -1,47 +1,73 @@
-import React, { useState } from 'react';
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>بوابة النزيل - فندق السبعة نجوم</title>
+    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <style>
+        :root { --gold: #c5a059; --bg: #05070A; }
+        body { background: var(--bg); color: #fff; font-family: 'Cairo'; margin: 0; padding: 20px; }
+        .card { background: #1a1a2e; border: 1px solid var(--gold); padding: 20px; margin: 10px 0; border-radius: 10px; cursor: pointer; text-align: center; }
+        .page { display: none; } .active { display: block; }
+        .btn-gold { background: var(--gold); padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; }
+    </style>
+</head>
+<body>
 
-// يمكنك إضافة مكتبة مثل react-router-dom للتنقل الفعلي
-const App = () => {
-  const [currentPage, setCurrentPage] = useState('login');
-
-  return (
-    <div className="bg-black min-h-screen text-white font-sans" dir="rtl">
-      {currentPage === 'login' && <LoginScreen onLogin={() => setCurrentPage('menu')} />}
-      {currentPage === 'menu' && <MenuScreen />}
-      {/* يمكن إضافة باقي الشاشات هنا */}
+    <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--gold); padding:10px;">
+        <div>مرحباً كريم - غرفه 15</div>
+        <div class="btn-gold" onclick="show('orders')">📦 طلباتي</div>
     </div>
-  );
-};
 
-// مكون شاشة تسجيل الدخول
-const LoginScreen = ({ onLogin }) => (
-  <div className="flex flex-col items-center justify-center h-screen p-6">
-    <h1 className="text-2xl font-bold mb-10">مرحباً بكم في فندق النجوم السبعة</h1>
-    <input className="w-full bg-gray-800 p-4 rounded-xl mb-4" placeholder="الاسم الثلاثي" />
-    <input className="w-full bg-gray-800 p-4 rounded-xl mb-4" placeholder="رقم الغرفة" />
-    <button onClick={onLogin} className="w-full bg-yellow-600 p-4 rounded-xl font-bold">دخول</button>
-  </div>
-);
-
-// مكون شاشة قائمة الطعام
-const MenuScreen = () => {
-  const items = [
-    { name: "لحم ضأن مشوي مع صلصة ترفل", price: "١٢٠ ريال" },
-    { name: "سلطة كينوا ملكية", price: "٤٥ ريال" }
-  ];
-
-  return (
-    <div className="p-6">
-      <h2 className="text-xl mb-6">قائمة الطعام</h2>
-      {items.map((item, index) => (
-        <div key={index} className="bg-gray-900 p-4 rounded-2xl mb-4 border border-gray-800 flex justify-between items-center">
-          <span>{item.name}</span>
-          <span className="text-yellow-600">{item.price}</span>
-        </div>
-      ))}
-      <button className="w-full bg-yellow-700 p-4 rounded-xl mt-4 font-bold">تأكيد الطلب</button>
+    <div id="main" class="page active">
+        <div class="card" onclick="show('restaurant')">🍔 المطعم</div>
+        <div class="card" onclick="show('maintenance')">🛠️ الصيانة</div>
+        <div class="card" onclick="show('cleaning')">🧹 التنظيف</div>
+        <div class="card" onclick="window.location.href='https://maps.app.goo.gl/c6vcYv1mosc7Vkmr6?g_st=ipc'">⭐ تقييم إيجابي</div>
+        <div class="card" onclick="rateNeg()">⚠️ تقييم سلبي</div>
     </div>
-  );
-};
 
-export default App;
+    <div id="restaurant" class="page">
+        <div id="menu-items"></div>
+        <div class="btn-gold" onclick="confirmOrder()">تأكيد الطلب</div>
+        <button onclick="show('main')">🔙 عودة</button>
+    </div>
+
+    <div id="maintenance" class="page">
+        <div class="card" onclick="sendReq('صيانة', 'كهرباء')">💡 كهرباء</div>
+        <div class="card" onclick="sendReq('صيانة', 'غاز')">🔥 غاز</div>
+        <button onclick="show('main')">🔙 عودة</button>
+    </div>
+
+    <div id="cleaning" class="page">
+        <div class="card" onclick="sendReq('تنظيف', 'عادي')">🧹 تنظيف عادي</div>
+        <div class="card" onclick="sendReq('تنظيف', 'مستعجل')">🚨 مستعجل</div>
+        <button onclick="show('main')">🔙 عودة</button>
+    </div>
+
+    <div id="orders" class="page">
+        <h3>قيد الانتظار</h3><div id="pending"></div>
+        <h3>قيد التنفيذ</h3><div id="processing"></div>
+        <h3>تم التنفيذ</h3><div id="done"></div>
+        <button onclick="show('main')">🔙 عودة</button>
+    </div>
+
+    <script>
+        const restAbly = new Ably.Realtime('T96fVQ.sgIqhw:iEh8DOlHnT9xY-tTSLUGK5NTVPKpYeiqmq9vAY6NCS0');
+        const cleanAbly = new Ably.Realtime('t96fVQ.g-C0Iw:4VIPekepXFxWhC66p7Dy1l3THOdj6XMUAmzPoyYGsvg');
+        const maintAbly = new Ably.Realtime('t96fVQ.GFJwpA:3p0e2gfsIUvpnrhmjyU2MsTyAyD_uqEY3SysfrENNPY');
+
+        function sendReq(type, item) {
+            let ch = (type === 'صيانة') ? maintAbly.channels.get('maint') : (type === 'تنظيف' ? cleanAbly.channels.get('clean') : restAbly.channels.get('rest'));
+            ch.publish('new', {item: item, status: 'pending'});
+            alert("تم إرسال طلب " + item); show('main');
+        }
+
+        function rateNeg() {
+            window.location.href = "https://wa.me/201274847794?text=أنا النزيل كريم، غرفة 15، عندي مشكلة بخصوص مكان الإقامة";
+        }
+
+        function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+    </script>
+</body>
+</html>

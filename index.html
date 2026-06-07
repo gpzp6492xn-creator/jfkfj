@@ -1,65 +1,75 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Concierge | 7-Star</title>
+    <title>بوابة النزيل - فندق السبعة نجوم</title>
     <style>
-        /* CSS الفاخر - نمط الـ Glassmorphism */
-        body { background: #0a0a0a; color: #d4af37; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); border: 1px solid rgba(212, 175, 55, 0.3); padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; }
-        input { width: 90%; padding: 12px; margin: 10px 0; background: #1a1a1a; border: 1px solid #d4af37; color: white; border-radius: 8px; }
-        button { background: #d4af37; color: #000; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%; }
-        .hidden { display: none; }
+        :root { --gold: #c5a059; --bg: #0b0e14; }
+        body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 20px; }
+        
+        .header { text-align: center; padding: 30px 0; border-bottom: 1px solid var(--gold); margin-bottom: 20px; }
+        .card { background: #1a1a2e; border: 1px solid var(--gold); padding: 25px; margin: 15px 0; border-radius: 12px; text-align: center; font-size: 1.4rem; cursor: pointer; transition: 0.3s; }
+        .card:hover { background: #252545; }
+        
+        .page { display: none; } .active { display: block; }
+        .btn-action { background: var(--gold); border: none; padding: 10px 20px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; }
+        .menu-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #333; }
     </style>
 </head>
 <body>
 
-    <div class="card" id="login-screen">
-        <h2>مرحباً بك في فندقنا</h2>
-        <input type="text" id="userName" placeholder="الاسم الثلاثي">
-        <input type="text" id="roomNum" placeholder="رقم الغرفة">
-        <button onclick="login()">دخول</button>
+    <div class="header">
+        <h2 id="u-name">أهلاً بك: كريم محمد السيد</h2>
+        <p>غرفة: 15</p>
     </div>
 
-    <div class="card hidden" id="main-screen">
-        <h2 id="welcomeMsg"></h2>
-        <button onclick="requestService('تنظيف')">طلب تنظيف الغرفة</button>
-        <button onclick="requestService('صيانة')">طلب صيانة</button>
-        <button onclick="logout()">خروج</button>
+    <div id="main" class="page active">
+        <div class="card" onclick="show('restaurant')">🍔 المطعم الفاخر</div>
+        <div class="card" onclick="show('maintenance')">🛠️ قسم الصيانة</div>
+        <div class="card" onclick="show('cleaning')">🧹 خدمة التنظيف</div>
+        <div class="card" onclick="window.location.href='https://maps.app.goo.gl/c6vcYv1mosc7Vkmr6?g_st=ipc'">😊 تقييم إيجابي</div>
+        <div class="card" onclick="window.location.href='https://wa.me/201274847794'">😞 تقييم سلبي</div>
+    </div>
+
+    <div id="restaurant" class="page">
+        <div id="menu-list"></div>
+        <div class="card" style="background:var(--gold); color:black" onclick="alert('تم إرسال الطلب')">تأكيد الطلب | الإجمالي: <span id="total">0</span></div>
+        <button class="btn-action" onclick="show('main')">🔙 عودة</button>
+    </div>
+
+    <div id="maintenance" class="page">
+        <div class="card" onclick="notify('كهرباء')">💡 كهرباء</div>
+        <div class="card" onclick="notify('تكييف')">❄️ تكييف</div>
+        <div class="card" onclick="notify('سباكة')">🚰 سباكة</div>
+        <div class="card" onclick="notify('غاز')">🔥 غاز</div>
+        <button class="btn-action" onclick="show('main')">🔙 عودة</button>
+    </div>
+
+    <div id="cleaning" class="page">
+        <div class="card" onclick="notify('تنظيف عادي')">🧹 تنظيف عادي</div>
+        <div class="card" onclick="notify('تنظيف مستعجل')">🚨 تنظيف مستعجل</div>
+        <button class="btn-action" onclick="show('main')">🔙 عودة</button>
     </div>
 
     <script>
-        // منطق الـ JavaScript
-        function login() {
-            const name = document.getElementById('userName').value;
-            const room = document.getElementById('roomNum').value;
-            if(name && room) {
-                localStorage.setItem('guest', JSON.stringify({name, room}));
-                showDashboard();
-            }
+        const menu = [{n: "بيتزا مارجريتا", p: 120}, {n: "وجبة شاورما عربي", p: 130}, {n: "كفتة مشوية", p: 180}];
+        let cart = {};
+
+        menu.forEach(i => {
+            document.getElementById('menu-list').innerHTML += `<div class="menu-item">${i.n} (${i.p}ج) 
+                <button onclick="update('${i.n}',${i.p},1)">+</button> <span id="q-${i.n}">0</span> <button onclick="update('${i.n}',${i.p},-1)">-</button></div>`;
+        });
+
+        function update(n, p, d) {
+            cart[n] = Math.max(0, (cart[n] || 0) + d);
+            document.getElementById('q-'+n).innerText = cart[n];
+            let tot = 0; menu.forEach(i => tot += (cart[i.n] || 0) * i.p);
+            document.getElementById('total').innerText = tot;
         }
 
-        function showDashboard() {
-            const guest = JSON.parse(localStorage.getItem('guest'));
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('main-screen').classList.remove('hidden');
-            document.getElementById('welcomeMsg').innerText = `أهلاً بك يا ${guest.name}`;
-        }
-
-        function requestService(type) {
-            alert(`تم إرسال طلب ${type} بنجاح! سيصلك الفريق فوراً.`);
-        }
-
-        function logout() {
-            localStorage.removeItem('guest');
-            location.reload();
-        }
-
-        // فحص تلقائي عند فتح الصفحة
-        window.onload = () => {
-            if(localStorage.getItem('guest')) showDashboard();
-        };
+        function notify(type) { alert("تم طلب " + type); show('main'); }
+        function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     </script>
 </body>
 </html>

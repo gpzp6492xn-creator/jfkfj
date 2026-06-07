@@ -3,62 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة النزيل - فندق السبعة نجوم</title>
+    <title>بوابة النزيل - فندق 7 نجوم</title>
     <style>
-        :root { --gold: #c5a059; --bg: #0b0e14; }
+        :root { --gold: #c5a059; --bg: #05070A; }
         body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 20px; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 2px solid var(--gold); }
+        .orders-btn { background: var(--gold); color: #000; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
         
-        .header { text-align: center; padding: 30px 0; border-bottom: 1px solid var(--gold); margin-bottom: 20px; }
-        .card { background: #1a1a2e; border: 1px solid var(--gold); padding: 25px; margin: 15px 0; border-radius: 12px; text-align: center; font-size: 1.4rem; cursor: pointer; transition: 0.3s; }
-        .card:hover { background: #252545; }
-        
+        .card { background: #1a1a2e; border: 1px solid var(--gold); padding: 30px; margin: 15px 0; border-radius: 15px; text-align: center; font-size: 1.5rem; cursor: pointer; }
         .page { display: none; } .active { display: block; }
-        .btn-action { background: var(--gold); border: none; padding: 10px 20px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; }
-        .menu-item { display: flex; justify-content: space-between; padding: 15px; border-bottom: 1px solid #333; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid #333; }
+        .btn-qty { padding: 10px 20px; background: var(--gold); border: none; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2 id="u-name">أهلاً بك: كريم محمد السيد</h2>
-        <p>غرفة: 15</p>
+    <div class="top-bar">
+        <div>أهلاً: <span id="u-name">كريم محمد السيد</span></div>
+        <div class="orders-btn" onclick="show('orders')">📦 طلباتي</div>
     </div>
 
     <div id="main" class="page active">
         <div class="card" onclick="show('restaurant')">🍔 المطعم الفاخر</div>
-        <div class="card" onclick="show('maintenance')">🛠️ قسم الصيانة</div>
-        <div class="card" onclick="show('cleaning')">🧹 خدمة التنظيف</div>
-        <div class="card" onclick="window.location.href='https://maps.app.goo.gl/c6vcYv1mosc7Vkmr6?g_st=ipc'">😊 تقييم إيجابي</div>
-        <div class="card" onclick="window.location.href='https://wa.me/201274847794'">😞 تقييم سلبي</div>
+        <div class="card" onclick="show('maintenance')">🛠️ الصيانة (كهرباء، غاز، تكييف، سباكة)</div>
+        <div class="card" onclick="show('cleaning')">🧹 التنظيف (عادي، مستعجل)</div>
+        <div class="card" style="border-color: #4CAF50" onclick="window.location.href='https://maps.app.goo.gl/c6vcYv1mosc7Vkmr6?g_st=ipc'">⭐ تقييم إيجابي</div>
+        <div class="card" style="border-color: #f44336" onclick="rateNeg()">⚠️ تقييم سلبي (إبلاغ الإدارة)</div>
     </div>
 
     <div id="restaurant" class="page">
         <div id="menu-list"></div>
-        <div class="card" style="background:var(--gold); color:black" onclick="alert('تم إرسال الطلب')">تأكيد الطلب | الإجمالي: <span id="total">0</span></div>
-        <button class="btn-action" onclick="show('main')">🔙 عودة</button>
+        <div class="card" style="background:var(--gold); color:#000" onclick="confirmOrder()">تأكيد الطلب | الإجمالي: <span id="total">0</span> ج.م</div>
+        <button onclick="show('main')">🔙 عودة</button>
     </div>
 
-    <div id="maintenance" class="page">
-        <div class="card" onclick="notify('كهرباء')">💡 كهرباء</div>
-        <div class="card" onclick="notify('تكييف')">❄️ تكييف</div>
-        <div class="card" onclick="notify('سباكة')">🚰 سباكة</div>
-        <div class="card" onclick="notify('غاز')">🔥 غاز</div>
-        <button class="btn-action" onclick="show('main')">🔙 عودة</button>
-    </div>
-
-    <div id="cleaning" class="page">
-        <div class="card" onclick="notify('تنظيف عادي')">🧹 تنظيف عادي</div>
-        <div class="card" onclick="notify('تنظيف مستعجل')">🚨 تنظيف مستعجل</div>
-        <button class="btn-action" onclick="show('main')">🔙 عودة</button>
+    <div id="orders" class="page">
+        <h3>📦 قيد الانتظار</h3><div id="pending"></div>
+        <h3>⚙️ قيد التنفيذ</h3><div id="processing"></div>
+        <h3>✅ تم التنفيذ</h3><div id="done"></div>
+        <button onclick="show('main')">🔙 عودة</button>
     </div>
 
     <script>
-        const menu = [{n: "بيتزا مارجريتا", p: 120}, {n: "وجبة شاورما عربي", p: 130}, {n: "كفتة مشوية", p: 180}];
-        let cart = {};
+        const menu = [
+            {n: "بيتزا مارجريتا", p: 120}, {n: "وجبة شاورما عربي", p: 130}, {n: "مشويات ميكس", p: 350},
+            {n: "ساندوتش دجاج", p: 75}, {n: "باستا", p: 140}, {n: "عصير فريش", p: 40},
+            {n: "سلطة يونانية", p: 60}, {n: "ريش ضاني", p: 280}, {n: "كفتة", p: 180}
+            // ضفت مجموعة، يمكنك تكرار السطر لإضافة حتى 100 صنف
+        ];
 
+        let cart = {};
         menu.forEach(i => {
-            document.getElementById('menu-list').innerHTML += `<div class="menu-item">${i.n} (${i.p}ج) 
-                <button onclick="update('${i.n}',${i.p},1)">+</button> <span id="q-${i.n}">0</span> <button onclick="update('${i.n}',${i.p},-1)">-</button></div>`;
+            document.getElementById('menu-list').innerHTML += `<div class="menu-item">${i.n} 
+                <div><button class="btn-qty" onclick="update('${i.n}',${i.p},1)">+</button> <span id="q-${i.n}">0</span> <button class="btn-qty" onclick="update('${i.n}',${i.p},-1)">-</button></div></div>`;
         });
 
         function update(n, p, d) {
@@ -68,7 +65,16 @@
             document.getElementById('total').innerText = tot;
         }
 
-        function notify(type) { alert("تم طلب " + type); show('main'); }
+        function confirmOrder() {
+            document.getElementById('pending').innerHTML += `<div class="card">طلب طعام - الإجمالي: ${document.getElementById('total').innerText}</div>`;
+            alert("تم إرسال الطلب!"); show('main');
+        }
+
+        function rateNeg() {
+            const msg = encodeURIComponent("أنا النزيل كريم محمد السيد، الغرفة 15، عندي مشكلة بخصوص مكان الإقامة وأحتاج مساعدة الإدارة.");
+            window.location.href = "https://wa.me/201274847794?text=" + msg;
+        }
+
         function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     </script>
 </body>

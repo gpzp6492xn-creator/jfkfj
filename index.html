@@ -2,80 +2,73 @@
 <html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>بوابة النزيل - فندق 7 نجوم</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة النزيل - 7 نجوم</title>
     <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
     <style>
         :root { --gold: #c5a059; --bg: #05070A; }
-        body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; padding: 20px; }
-        .btn-big { background: #1a1a2e; border: 2px solid var(--gold); padding: 30px; margin: 15px 0; border-radius: 15px; font-size: 1.5rem; text-align: center; cursor: pointer; }
-        .item-row { display: flex; justify-content: space-between; padding: 20px; border-bottom: 1px solid #333; align-items: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 20px; border: 1px solid #444; text-align: center; font-size: 1.3rem; }
+        body { background: var(--bg); color: #fff; font-family: 'Cairo'; margin: 0; padding: 25px; }
+        
+        /* تصميم الأزرار العملاقة */
+        .btn-big { background: #1a1a2e; border: 3px solid var(--gold); padding: 50px 20px; margin: 25px 0; border-radius: 25px; text-align: center; font-size: 2rem; cursor: pointer; color: white; display: block; }
         .page { display: none; } .active { display: block; }
+        
+        /* تصميم جدول الطلبات */
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 1.5rem; }
+        th, td { padding: 30px; border: 2px solid var(--gold); text-align: center; }
+        
+        /* تصميم المنيو */
+        .item { display: flex; justify-content: space-between; padding: 30px; border-bottom: 2px solid #333; font-size: 1.6rem; }
+        .qty-box { display: flex; gap: 20px; align-items: center; }
+        .plus-minus { padding: 20px 40px; background: var(--gold); border: none; border-radius: 15px; font-size: 1.8rem; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div style="text-align:center; padding: 20px; border-bottom: 2px solid var(--gold);">
+    <div style="text-align:center; padding: 30px; border-bottom: 4px solid var(--gold);">
         <h1>أهلاً كريم - غرفة 15</h1>
-        <div class="btn-big" onclick="show('orders')" style="background:var(--gold); color:black;">📦 طلباتي (الجدول اللحظي)</div>
+        <div class="btn-big" style="background:var(--gold); color:black; padding:20px;" onclick="show('orders')">📦 طلباتي (الجدول اللحظي)</div>
     </div>
 
     <div id="main" class="page active">
-        <div class="btn-big" onclick="show('restaurant')">🍔 المطعم</div>
+        <div class="btn-big" onclick="show('restaurant')">🍔 المطعم الفاخر</div>
         <div class="btn-big" onclick="show('maintenance')">🛠️ الصيانة</div>
         <div class="btn-big" onclick="show('cleaning')">🧹 التنظيف</div>
     </div>
 
     <div id="restaurant" class="page">
-        <div id="menu-container"></div>
-        <div class="btn-big" style="background:var(--gold); color:black;" onclick="submitOrder()">تأكيد الطلب | الإجمالي: <span id="total-price">0</span> ج</div>
-        <button onclick="show('main')" style="width:100%; padding:20px;">🔙 عودة</button>
+        <div class="item">بيتزا مارجريتا (120ج) <div class="qty-box"><button class="plus-minus" onclick="add('بيتزا')">+</button><span id="q-بيتزا">0</span></div></div>
+        <div class="item">شاورما عربي (85ج) <div class="qty-box"><button class="plus-minus" onclick="add('شاورما')">+</button><span id="q-شاورما">0</span></div></div>
+        <div class="btn-big" style="background:var(--gold); color:black;" onclick="confirmOrder()">تأكيد وإرسال للانتظار</div>
+        <div class="btn-big" onclick="show('main')">🔙 عودة</div>
     </div>
 
     <div id="orders" class="page">
         <table>
             <thead><tr><th>الطلب</th><th>الحالة</th></tr></thead>
-            <tbody id="order-table"></tbody>
+            <tbody id="order-list"></tbody>
         </table>
-        <button onclick="show('main')" style="width:100%; padding:20px; margin-top:20px;">🔙 عودة للرئيسية</button>
+        <div class="btn-big" onclick="show('main')">🔙 عودة للرئيسية</div>
     </div>
 
     <script>
         const ably = new Ably.Realtime('T96fVQ.sgIqhw:iEh8DOlHnT9xY-tTSLUGK5NTVPKpYeiqmq9vAY6NCS0');
         const channel = ably.channels.get('hotel-orders');
 
-        const menu = [{n: "بيتزا", p: 120}, {n: "شاورما", p: 85}, {n: "مشويات", p: 350}];
-        let cart = {};
+        let cart = { 'بيتزا': 0, 'شاورما': 0 };
 
-        // بناء المنيو
-        menu.forEach(item => {
-            document.getElementById('menu-container').innerHTML += `<div class="item-row">${item.n} (${item.p}ج) 
-                <div><button onclick="update('${item.n}', ${item.p}, 1)">+</button> <span id="q-${item.n}">0</span> <button onclick="update('${item.n}', ${item.p}, -1)">-</button></div></div>`;
-        });
+        function add(item) { cart[item]++; document.getElementById('q-'+item).innerText = cart[item]; }
 
-        function update(n, p, d) {
-            cart[n] = Math.max(0, (cart[n] || 0) + d);
-            document.getElementById('q-'+n).innerText = cart[n];
-            let tot = 0; menu.forEach(i => tot += (cart[i.n] || 0) * i.p);
-            document.getElementById('total-price').innerText = tot;
+        function confirmOrder() {
+            let orderSummary = Object.keys(cart).filter(k => cart[k] > 0).map(k => k + " x" + cart[k]).join(", ");
+            if(orderSummary === "") { alert("السلة فاضية!"); return; }
+            
+            // إضافة للجدول فوراً
+            document.getElementById('order-list').innerHTML += `<tr><td>${orderSummary}</td><td>قيد الانتظار</td></tr>`;
+            channel.publish('new-order', {item: orderSummary, status: 'قيد الانتظار'});
+            alert("تم إرسال طلبك للانتظار!");
+            show('orders');
         }
-
-        function submitOrder() {
-            let orderText = Object.keys(cart).filter(k => cart[k] > 0).map(k => k + " x" + cart[k]).join(", ");
-            channel.publish('new-order', {item: orderText, status: 'قيد الانتظار'});
-            alert("تم إرسال الطلب!"); show('orders');
-        }
-
-        channel.subscribe('new-order', (msg) => {
-            document.getElementById('order-table').innerHTML += `<tr><td>${msg.data.item}</td><td>${msg.data.status}</td></tr>`;
-        });
-        
-        // تحديث الحالة لحظي
-        channel.subscribe('update', (msg) => {
-            let row = document.getElementById('row-' + msg.data.id);
-            if(row) row.cells[1].innerText = msg.data.status;
-        });
 
         function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     </script>

@@ -3,73 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة النزيل - 7 نجوم</title>
-    <script src="https://cdn.ably.com/lib/ably.min-1.js"></script>
+    <title>بوابة النزيل - فندق 7 نجوم</title>
     <style>
         :root { --gold: #c5a059; --bg: #05070A; }
-        body { background: var(--bg); color: #fff; font-family: 'Cairo'; margin: 0; padding: 25px; }
+        body { background: var(--bg); color: #fff; font-family: 'Cairo', sans-serif; margin: 0; padding: 25px; }
         
-        /* تصميم الأزرار العملاقة */
-        .btn-big { background: #1a1a2e; border: 3px solid var(--gold); padding: 50px 20px; margin: 25px 0; border-radius: 25px; text-align: center; font-size: 2rem; cursor: pointer; color: white; display: block; }
+        /* أزرار عملاقة للتحكم السهل */
+        .btn-big { background: #1a1a2e; border: 4px solid var(--gold); padding: 50px 20px; margin: 25px 0; border-radius: 25px; text-align: center; font-size: 2.2rem; cursor: pointer; color: white; display: block; }
         .page { display: none; } .active { display: block; }
         
-        /* تصميم جدول الطلبات */
-        table { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 1.5rem; }
-        th, td { padding: 30px; border: 2px solid var(--gold); text-align: center; }
-        
-        /* تصميم المنيو */
-        .item { display: flex; justify-content: space-between; padding: 30px; border-bottom: 2px solid #333; font-size: 1.6rem; }
-        .qty-box { display: flex; gap: 20px; align-items: center; }
-        .plus-minus { padding: 20px 40px; background: var(--gold); border: none; border-radius: 15px; font-size: 1.8rem; cursor: pointer; }
+        /* تصميم المنيو والخيارات */
+        .option-item { background: #1a1a2e; border: 2px solid var(--gold); padding: 40px; margin: 20px 0; border-radius: 15px; font-size: 1.8rem; display: flex; justify-content: space-between; align-items: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        th, td { padding: 30px; border: 2px solid var(--gold); text-align: center; font-size: 1.6rem; }
     </style>
 </head>
 <body>
 
     <div style="text-align:center; padding: 30px; border-bottom: 4px solid var(--gold);">
         <h1>أهلاً كريم - غرفة 15</h1>
-        <div class="btn-big" style="background:var(--gold); color:black; padding:20px;" onclick="show('orders')">📦 طلباتي (الجدول اللحظي)</div>
     </div>
 
     <div id="main" class="page active">
         <div class="btn-big" onclick="show('restaurant')">🍔 المطعم الفاخر</div>
         <div class="btn-big" onclick="show('maintenance')">🛠️ الصيانة</div>
         <div class="btn-big" onclick="show('cleaning')">🧹 التنظيف</div>
+        <div class="btn-big" style="border-color: #4CAF50" onclick="window.location.href='https://maps.app.goo.gl/c6vcYv1mosc7Vkmr6?g_st=ipc'">⭐ تقييم إيجابي</div>
+        <div class="btn-big" style="border-color: #f44336" onclick="window.location.href='https://wa.me/201274847794'">⚠️ تقييم سلبي</div>
+        <div class="btn-big" style="background:var(--gold); color:black" onclick="show('orders')">📦 طلباتي</div>
     </div>
 
     <div id="restaurant" class="page">
-        <div class="item">بيتزا مارجريتا (120ج) <div class="qty-box"><button class="plus-minus" onclick="add('بيتزا')">+</button><span id="q-بيتزا">0</span></div></div>
-        <div class="item">شاورما عربي (85ج) <div class="qty-box"><button class="plus-minus" onclick="add('شاورما')">+</button><span id="q-شاورما">0</span></div></div>
-        <div class="btn-big" style="background:var(--gold); color:black;" onclick="confirmOrder()">تأكيد وإرسال للانتظار</div>
+        <div class="option-item">بيتزا مارجريتا (120ج) <button onclick="alert('تمت الإضافة')">+</button></div>
+        <div class="option-item">شاورما دجاج (85ج) <button onclick="alert('تمت الإضافة')">+</button></div>
+        <div class="btn-big" onclick="show('main')">🔙 عودة</div>
+    </div>
+
+    <div id="maintenance" class="page">
+        <div class="option-item" onclick="alert('تم طلب صيانة كهرباء')">💡 كهرباء</div>
+        <div class="option-item" onclick="alert('تم طلب صيانة تكييف')">❄️ تكييف</div>
+        <div class="btn-big" onclick="show('main')">🔙 عودة</div>
+    </div>
+
+    <div id="cleaning" class="page">
+        <div class="option-item" onclick="alert('تم طلب تنظيف عادي')">🧹 تنظيف عادي</div>
+        <div class="option-item" onclick="alert('تم طلب تنظيف مستعجل')">🚨 مستعجل</div>
         <div class="btn-big" onclick="show('main')">🔙 عودة</div>
     </div>
 
     <div id="orders" class="page">
-        <table>
-            <thead><tr><th>الطلب</th><th>الحالة</th></tr></thead>
-            <tbody id="order-list"></tbody>
-        </table>
-        <div class="btn-big" onclick="show('main')">🔙 عودة للرئيسية</div>
+        <table><thead><tr><th>الطلب</th><th>الحالة</th></tr></thead><tbody id="order-list"></tbody></table>
+        <div class="btn-big" onclick="show('main')">🔙 عودة</div>
     </div>
 
     <script>
-        const ably = new Ably.Realtime('T96fVQ.sgIqhw:iEh8DOlHnT9xY-tTSLUGK5NTVPKpYeiqmq9vAY6NCS0');
-        const channel = ably.channels.get('hotel-orders');
-
-        let cart = { 'بيتزا': 0, 'شاورما': 0 };
-
-        function add(item) { cart[item]++; document.getElementById('q-'+item).innerText = cart[item]; }
-
-        function confirmOrder() {
-            let orderSummary = Object.keys(cart).filter(k => cart[k] > 0).map(k => k + " x" + cart[k]).join(", ");
-            if(orderSummary === "") { alert("السلة فاضية!"); return; }
-            
-            // إضافة للجدول فوراً
-            document.getElementById('order-list').innerHTML += `<tr><td>${orderSummary}</td><td>قيد الانتظار</td></tr>`;
-            channel.publish('new-order', {item: orderSummary, status: 'قيد الانتظار'});
-            alert("تم إرسال طلبك للانتظار!");
-            show('orders');
-        }
-
         function show(id) { document.querySelectorAll('.page').forEach(p=>p.classList.remove('active')); document.getElementById(id).classList.add('active'); }
     </script>
 </body>
